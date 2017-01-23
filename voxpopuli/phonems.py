@@ -73,11 +73,15 @@ class FrenchPhonems:
     _all = VOWELS | CONSONANTS
 
 
-class EnglishPhonems:
+class SpanishPhonems(AbstractPhonemGroup):
     pass
 
 
-class GermanPhonems:
+class EnglishPhonems(AbstractPhonemGroup):
+    pass
+
+
+class GermanPhonems(AbstractPhonemGroup):
     PLOSIVES = {'b', 'd', 'g', 'k', 'p', 't'}
     GLOTTAL_STOP = "?"
     AFFRICATES = {'dZ', 'pf', 'tS', 'ts'}
