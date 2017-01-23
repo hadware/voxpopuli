@@ -1,13 +1,12 @@
 # coding=utf-8
 """A lightweight Python wrapper of SoX's effects."""
+import io
 import logging
-import shlex
 from struct import pack
 from subprocess import PIPE, run
 from typing import Union
-from warnings import warn
-import pyaudio
 
+import pyaudio
 
 from .phonems import PhonemList
 
@@ -16,10 +15,16 @@ class AudioFile:
     """A sound player"""
     chunk = 1024
 
-    def __init__(self, file):
+    def __init__(self):
         """ Init audio stream """
-        self.wf = wave.open(file, 'rb')
+        self.wf, self.stream = None, None
         self.p = pyaudio.PyAudio()
+
+    def set_file(self, file):
+        if self.stream is not None:
+            self.stream.close()
+
+        self.wf = wave.open(file, 'rb')
         self.stream = self.p.open(
             format = self.p.get_format_from_width(self.wf.getsampwidth()),
             channels = self.wf.getnchannels(),
@@ -44,10 +49,13 @@ class Voice:
 
     def __init__(self):
         self.speed, self.pitch, self.lang, self.sex, self.volume, self.voice = None, None, None, None, None, None
+        self._player = None
 
     @property
     def player(self):
-        pass
+        if self._player is None:
+            self._player = AudioFile()
+        return self._player
 
     def _wav_format(self, wav: bytes):
         return wav[:4] + pack('<I', len(wav) - 8) + wav[8:40] + pack('<I', len(wav) - 44) + wav[44:]
@@ -93,4 +101,7 @@ class Voice:
         return wav
 
     def say(self, speech : Union[PhonemList, str]):
-        pass
+        wav = self.to_audio(speech)
+        self.player.set_file(io.BytesIO(wav))
+        self.player.play()
+

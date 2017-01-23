@@ -9,22 +9,6 @@ def pairwise(iterable):
     return zip(a, a)
 
 
-class FrenchPhonems:
-    PLOSIVES = {"p", "b", "t", "d", "k", "g"}
-    FRICATIVES = {'S', 'Z', 'f', 's', 'v', 'z', 'j'}
-    NASAL_CONSONANTS = {'J', 'm', 'n', 'N'}
-    LIQUIDS = {'H', 'R', 'j', 'l', 'w'}
-    CONSONANTS = PLOSIVES | FRICATIVES | LIQUIDS | NASAL_CONSONANTS
-    ORALS = {'2', '9', '@', 'A', 'E', 'O', 'a', 'e', 'i', 'o', 'u', 'y'}
-    NASAL_WOVELS = {'9~', 'a~', 'e~', 'o~'}
-    INDETERMINATE_WOVELS = {'&/', 'A/', 'E/', 'O/', 'U~/'}
-    VOWELS = ORALS | NASAL_WOVELS | INDETERMINATE_WOVELS
-    _all = VOWELS | CONSONANTS
-
-    def __contains__(self, item):
-        return item in self._all
-
-
 class Phonem:
 
     def __init__(self, name : str, duration : int, pitch_mods : List[Tuple[int, int]] = None):
@@ -63,3 +47,51 @@ class PhonemList(list):
     @property
     def phonemes_str(self):
         return "".join([str(phonem.name) for phonem in self])
+
+
+class AbstractPhonemGroup:
+    _all = set()
+
+    def __contains__(self, item):
+        return item in self._all
+
+
+## all these sets are made from information taken here: http://www.phon.ucl.ac.uk/home/sampa/
+## It's the SAMPA standard for writing phonems in lots of langages
+
+
+class FrenchPhonems:
+    PLOSIVES = {"p", "b", "t", "d", "k", "g"}
+    FRICATIVES = {'S', 'Z', 'f', 's', 'v', 'z', 'j'}
+    NASAL_CONSONANTS = {'J', 'm', 'n', 'N'}
+    LIQUIDS = {'H', 'R', 'j', 'l', 'w'}
+    CONSONANTS = PLOSIVES | FRICATIVES | LIQUIDS | NASAL_CONSONANTS
+    ORALS = {'2', '9', '@', 'A', 'E', 'O', 'a', 'e', 'i', 'o', 'u', 'y'}
+    NASAL_WOVELS = {'9~', 'a~', 'e~', 'o~'}
+    INDETERMINATE_WOVELS = {'&/', 'A/', 'E/', 'O/', 'U~/'}
+    VOWELS = ORALS | NASAL_WOVELS | INDETERMINATE_WOVELS
+    _all = VOWELS | CONSONANTS
+
+
+class EnglishPhonems:
+    pass
+
+
+class GermanPhonems:
+    PLOSIVES = {'b', 'd', 'g', 'k', 'p', 't'}
+    GLOTTAL_STOP = "?"
+    AFFRICATES = {'dZ', 'pf', 'tS', 'ts'}
+    FRICATIVES = {'C', 'S', 'Z', 'f', 'h', 'j', 's', 'v', 'x', 'z'}
+    SONORANTS = {'N', 'R', 'l', 'm', 'n'}
+    CONSONANTS = PLOSIVES | AFFRICATES | FRICATIVES | SONORANTS
+    CHECKED = {'9', 'E', 'I', 'O', 'U', 'Y', 'a'}
+    PURE = {'2:', 'E:', 'a:', 'e:', 'i:', 'o:', 'u:', 'y:'}
+    DIPHTONGS = {'OY', 'aI', 'aU'}
+    VOWELS = CHECKED | PURE | DIPHTONGS
+    SCHWA = "@"
+    CENTRING_DIPHTONGS = {'2:6', '6', '96', 'E6', 'E:6', 'I6', 'O6', 'U6', 'Y6',
+                          'a6', 'a:6', 'e:6', 'i:6', 'o:6', 'u:6', 'y:6'}
+
+
+
+
