@@ -6,8 +6,12 @@ import wave
 from struct import pack
 from subprocess import PIPE, run
 from typing import Union
+import pathlib
+import os
+import fnmatch
 
 import pyaudio
+from os.path import isfile, join
 
 from .phonems import PhonemList
 
@@ -47,18 +51,50 @@ class AudioFile:
 
 
 class Voice:
-    lang_voices_mapping = {"fr": ("fr", (1, 2, 3, 4, 5, 6, 7)),
-                           "en": ("us", (1, 2, 3)),
-                           "es": ("es", (1, 2)),
-                           "de": ("de", (4, 5, 6, 7))}
+
+    class InvalidVoiceParameters(Exception):
+        pass
+
+    mbrola_voices_folder = "/usr/share/mbrola"
 
     volumes_presets = {'fr1': 1.17138, 'fr2': 1.60851, 'fr3': 1.01283, 'fr4': 1.0964, 'fr5': 2.64384, 'fr6': 1.35412,
                        'fr7': 1.96092, 'us1': 1.658, 'us2': 1.7486, 'us3': 3.48104, 'es1': 3.26885, 'es2': 1.84053}
 
+    def __init__(self, speed : int = 160, pitch: int = 50, lang : str ="fr",
+                 voice_id : int = None, volume: float = None):
 
-    def __init__(self):
-        self.speed, self.pitch, self.lang, self.sex, self.volume, self.voice = None, None, None, None, None, None
+        self.speed = speed
+
+        if 99 >= pitch >= 0:
+            self.pitch = pitch
+        else:
+            raise self.InvalidVoiceParameters("Pitch adjustment has to be an integer between 0 and 99")
+
+        # if no voice ID is specified, just defaults to one it can find
+        voice_id = voice_id if voice_id is not None else self._find_existing_voiceid(lang)
+        voice_name = lang+str(voice_id)
+        if isfile(join(self.mbrola_voices_folder, voice_name, voice_name)):
+            self.lang = lang
+            self.voice_id = voice_id
+        else:
+            raise self.InvalidVoiceParameters("Voice %s not found. Check language and voice id, or install"
+                                              "by running 'sudo apt install mbrola-%s'" % (voice_name, voice_name))
+
+        if volume is not None:
+            self.volume = volume
+        else:
+            if voice_name in self.volumes_presets:
+                self.volume = self.volumes_presets[voice_name]
+            self.volume = 1
+
         self._player = None
+
+    def _find_existing_voiceid(self, lang : str):
+        """Finds any possible voice id for a given language"""
+        for file in os.listdir(self.mbrola_voices_folder):
+            if fnmatch.fnmatch(file, lang + "[0-9]"):
+                return int(file.strip(lang))
+        return 1 # default to 1 if none is found
 
     @property
     def player(self):
