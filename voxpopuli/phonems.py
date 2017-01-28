@@ -57,7 +57,7 @@ class AbstractPhonemGroup:
 
 
 ## all these sets are made from information taken here: http://www.phon.ucl.ac.uk/home/sampa/
-## It's the SAMPA standard for writing phonems in lots of langages
+## It's the SAMPA (based on IPA) standard for writing phonems in lots of langages
 
 
 class FrenchPhonems:
@@ -77,8 +77,22 @@ class SpanishPhonems(AbstractPhonemGroup):
     pass
 
 
-class EnglishPhonems(AbstractPhonemGroup):
-    pass
+class BritishEnglishPhonems(AbstractPhonemGroup):
+    PLOSIVES = {'b', 'd', 'g', 'k', 'p', 't'}
+    AFFRICATES = {'dZ', 'tS'}
+    FRICATIVES = {'D', 'S', 'T', 'Z', 'f', 'h', 's', 'v', 'z'}
+    LIQUIDS = {'l', 'r'}
+    NASALS = {'N', 'm', 'n'}
+    GLIDES = {'j', 'w'}
+    SONORANTS = LIQUIDS | NASALS | GLIDES
+    CONSONANTS = PLOSIVES | FRICATIVES | SONORANTS | AFFRICATES
+    CHECKED = {'I', 'Q', 'U', 'V', 'e', '{'}
+    FREE = {'A:', 'I@', '@U', 'OI,', 'eI', 'e@', 'aI', '3:', 'U@', 'aU,', 'O:', 'i:', 'u:'}
+    INDETERMINATE = {'i', 'u'}
+    CENTRAL = {'@'}
+    VOWELS = CHECKED | FREE | INDETERMINATE | CENTRAL
+    ADDITIONALS = {"?", "x"}
+    _all = VOWELS | CONSONANTS
 
 
 class GermanPhonems(AbstractPhonemGroup):
@@ -95,6 +109,7 @@ class GermanPhonems(AbstractPhonemGroup):
     SCHWA = "@"
     CENTRING_DIPHTONGS = {'2:6', '6', '96', 'E6', 'E:6', 'I6', 'O6', 'U6', 'Y6',
                           'a6', 'a:6', 'e:6', 'i:6', 'o:6', 'u:6', 'y:6'}
+    _all = VOWELS | SCHWA | CENTRING_DIPHTONGS | CONSONANTS
 
 
 

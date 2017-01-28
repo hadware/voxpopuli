@@ -1,22 +1,21 @@
 # coding=utf-8
 """A lightweight Python wrapper of SoX's effects."""
+import fnmatch
 import io
 import logging
+import os
 import wave
+from os.path import isfile, join
 from struct import pack
 from subprocess import PIPE, run
 from typing import Union
-import pathlib
-import os
-import fnmatch
 
 import pyaudio
-from os.path import isfile, join
 
 from .phonems import PhonemList
 
 
-class AudioFile:
+class AudioPlayer:
     """A sound player"""
     chunk = 1024
 
@@ -94,12 +93,12 @@ class Voice:
         for file in os.listdir(self.mbrola_voices_folder):
             if fnmatch.fnmatch(file, lang + "[0-9]"):
                 return int(file.strip(lang))
-        return 1 # default to 1 if none is found
+        return 1 # default to 1 if no voice are found (although it'll probably fail then)
 
     @property
     def player(self):
         if self._player is None:
-            self._player = AudioFile()
+            self._player = AudioPlayer()
         return self._player
 
     def _wav_format(self, wav: bytes):
