@@ -8,8 +8,8 @@ setup(
     description='A wrapper around Espeak and Mbrola, to do simple Text-To-Speech (TTS),'
                 ' with the possibility to tweak the phonemic form.',
     url='https://github.com/hadware/voxpopuli',
-    author='Hadrien Titeux',
-    author_email='carlthome@gmail.com',
+    author='Hadware',
+    author_email='hadwarez@gmail.com',
     license='MIT',
     classifiers=[
         'Topic :: Text Processing :: Linguistic',
@@ -25,5 +25,5 @@ setup(
     packages=find_packages(),
     install_requires=['pyaudio'],
     include_package_data=True,
-    setup_requires=['pytest-runner'],
+    test_suite='nose.collector',
     tests_require=['nose'])
