@@ -1,14 +1,17 @@
 # coding=utf-8
-"""A lightweight Python wrapper of SoX's effects."""
+"""A lightweight Python wrapper of espeak and mbrola"""
 import fnmatch
 import io
 import logging
 import os
 import wave
 from os.path import isfile, join
+from shlex import quote
 from struct import pack
 from subprocess import PIPE, run
 from typing import Union
+import re
+from typing import List, Dict
 
 import pyaudio
 
@@ -61,6 +64,9 @@ class Voice:
 
     def __init__(self, speed : int = 160, pitch: int = 50, lang : str ="fr",
                  voice_id : int = None, volume: float = None):
+        """All parameters are optional, but it's still advised that you pick a language,
+        else it **will** default to French, which is a default to the most beautiful language on earth.
+        Any invalid parameter will raise an `InvalidVoiceParameter` exception."""
 
         self.speed = speed
 
@@ -86,6 +92,11 @@ class Voice:
                 self.volume = self.volumes_presets[voice_name]
             self.volume = 1
 
+        if lang != 'fr':
+            self.sex = self.voice_id
+        else:
+            self.sex = 4 if self.voice_id in (2, 4) else 1
+
         self._player = None
 
     def _find_existing_voiceid(self, lang : str):
@@ -108,7 +119,7 @@ class Voice:
         synth_string = 'MALLOC_CHECK_=0 espeak -s %d -p %d --pho -q -v mb/mb-%s%d %s ' \
                        '| MALLOC_CHECK_=0 mbrola -v %g -e /usr/share/mbrola/%s%d/%s%d - -.wav' \
                        % (self.speed, self.pitch, self.lang, self.sex, text,  # for espeak
-                          self.volume, self.lang, self.voice, self.lang, self.voice) # for mbrola
+                          self.volume, self.lang, self.voice_id, self.lang, self.voice_id) # for mbrola
         logging.debug("Running synth command %s" % synth_string)
         return self._wav_format(run(synth_string, shell=True, stdout=PIPE, stderr=PIPE).stdout)
 
@@ -124,28 +135,43 @@ class Voice:
 
     def _phonems_to_audio(self, phonems : PhonemList) -> bytes:
         audio_synth_string = 'MALLOC_CHECK_=0 mbrola -v %g -e /usr/share/mbrola/%s%d/%s%d - -.wav' \
-                             % (self.volume, self.lang, self.voice, self.lang, self.voice)
+                             % (self.volume, self.lang, self.voice_id, self.lang, self.voice_id)
 
         logging.debug("Running mbrola command %s" % audio_synth_string)
         return self._wav_format(run(audio_synth_string, shell=True, stdout=PIPE,
                                     stderr=PIPE, input=str(phonems).encode("utf-8")).stdout)
 
     def to_phonems(self, text : str) -> PhonemList:
-        return self._str_to_phonems(text)
+        return self._str_to_phonems(quote(text))
 
     def to_audio(self, speech : Union[PhonemList, str], filename = None) -> bytes:
+        """Renders a str or a `PhonemList` to a wave byte object. If a filename is specified, it saves the
+        audio file to wave as well"""
         if isinstance(speech, str):
-            wav = self._str_to_audio(speech)
+            wav = self._str_to_audio(quote(speech))
         elif isinstance(speech, PhonemList):
             wav = self._phonems_to_audio(speech)
 
         if filename is not None:
-            pass
+            with open(filename, "wb") as wavfile:
+                wavfile.write(wav)
 
         return wav
 
     def say(self, speech : Union[PhonemList, str]):
+        """Renders a string or a `PhonemList` object to audio, then plays it using the PyAudio lib"""
         wav = self.to_audio(speech)
         self.player.set_file(io.BytesIO(wav))
         self.player.play()
 
+    def listvoices(self):
+        """Returns a dictionary listing available voice id's for each language"""
+        langs = {} # type:Dict[List]
+        for file in os.listdir(self.mbrola_voices_folder):
+            match = re.match(r"([a-z]{2})([0-9])", file)
+            if match is not None:
+                lang, voice_id = match.groups()
+                if lang not in langs:
+                    langs[lang] = []
+                langs[lang].append(voice_id)
+        return langs

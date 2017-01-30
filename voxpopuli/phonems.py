@@ -106,7 +106,7 @@ class GermanPhonems(AbstractPhonemGroup):
     PURE = {'2:', 'E:', 'a:', 'e:', 'i:', 'o:', 'u:', 'y:'}
     DIPHTONGS = {'OY', 'aI', 'aU'}
     VOWELS = CHECKED | PURE | DIPHTONGS
-    SCHWA = "@"
+    SCHWA = {"@"}
     CENTRING_DIPHTONGS = {'2:6', '6', '96', 'E6', 'E:6', 'I6', 'O6', 'U6', 'Y6',
                           'a6', 'a:6', 'e:6', 'i:6', 'o:6', 'u:6', 'y:6'}
     _all = VOWELS | SCHWA | CENTRING_DIPHTONGS | CONSONANTS
