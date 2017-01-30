@@ -70,7 +70,7 @@ You can set some parameters you can set on the voice, such as language or pitch
 ```python
 from voxpopuli import Voice
 # really slow fice with high pitch
-voice = Voice(lang="us", pitch="99", speed="50", voice_id=2)
+voice = Voice(lang="us", pitch=99, speed=40, voice_id=2)
 voice.say("I'm high on helium")
 ```
 
@@ -101,7 +101,7 @@ a list of pitch modifiers. The pitch modifiers are a list of couples, each coupl
 representing the percentage of the sample at which to apply the pitch modification and
 the pitch. 
 
-Funny thing is, with voxpopuli, you can `intercept` that phonemlist as a
+Funny thing is, with voxpopuli, you can "intercept" that phonemlist as a
 simple object, modify it, and then pass it back to the voice to render it to
 audio. For instance, let's make a simple alteration that'll double the
 duration for each vowels in an english text.
