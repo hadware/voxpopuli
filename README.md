@@ -23,7 +23,7 @@ sudo apt install mbrola espeak
 You'll also need some mbrola voices installed, which you can either get on their project page, 
 and then uppack in `/usr/share/mbrola/<lang><voiceid>/` or more simply by 
 installing them from the ubuntu repo's. All the voices' packages are of the form
-`mbrola-<lang><voiceid>`. You can more simply install all the voices available
+`mbrola-<lang><voiceid>`. You can even more simply install all the voices available
 by running:
 ```sh
 sudo apt install mbrola-*
@@ -58,7 +58,7 @@ Ou can also, say, use scipy to get the pcm audio as a `ndarray`:
 import scipy.io.wavfile import read, write
 from io import BytesIO
 
-rate, wave_array = read(wav)
+rate, wave_array = read(BytesIO(wav))
 reversed = wave_array[::-1] # reversing the sound file
 write("tulas.wav", rate, reversed)
 ```
