@@ -9,6 +9,7 @@ from os.path import isfile, join
 from shlex import quote
 from struct import pack
 from subprocess import PIPE, run
+from sys import platform
 from typing import Union
 import re
 from typing import List, Dict
@@ -33,10 +34,10 @@ class AudioPlayer:
 
         self.wf = wave.open(file, 'rb')
         self.stream = self.p.open(
-            format = self.p.get_format_from_width(self.wf.getsampwidth()),
-            channels = self.wf.getnchannels(),
-            rate = self.wf.getframerate(),
-            output = True
+            format=self.p.get_format_from_width(self.wf.getsampwidth()),
+            channels=self.wf.getnchannels(),
+            rate=self.wf.getframerate(),
+            output=True
         )
 
     def play(self):
@@ -57,13 +58,23 @@ class Voice:
     class InvalidVoiceParameters(Exception):
         pass
 
-    mbrola_voices_folder = "/usr/share/mbrola"
+    if platform == 'linux2':
+        espeak_binary = 'espeak'
+        mbrola_binary = 'mbrola'
+        mbrola_voices_folder = "/usr/share/mbrola"
+    elif platform == 'win32':
+        espeak_binary = 'C:\\Program Files (x86)\\eSpeak\\command_line\\espeak'
+        mbrola_binary = 'C:\\Program Files (x86)\\Mbrola Tools\\phoplayer'
+        # TODO: a default value on Windows for mbrola_voices_folder
+        # TODO: raise error if no binary is installed
+    else:
+        raise ValueError('Unsupported system.')
 
     volumes_presets = {'fr1': 1.17138, 'fr2': 1.60851, 'fr3': 1.01283, 'fr4': 1.0964, 'fr5': 2.64384, 'fr6': 1.35412,
                        'fr7': 1.96092, 'us1': 1.658, 'us2': 1.7486, 'us3': 3.48104, 'es1': 3.26885, 'es2': 1.84053}
 
-    def __init__(self, speed : int = 160, pitch: int = 50, lang : str ="fr",
-                 voice_id : int = None, volume: float = None):
+    def __init__(self, speed: int = 160, pitch: int = 50, lang: str ="fr",
+                 voice_id: int = None, volume: float = None):
         """All parameters are optional, but it's still advised that you pick a language,
         else it **will** default to French, which is a default to the most beautiful language on earth.
         Any invalid parameter will raise an `InvalidVoiceParameter` exception."""
@@ -99,12 +110,12 @@ class Voice:
 
         self._player = None
 
-    def _find_existing_voiceid(self, lang : str):
+    def _find_existing_voiceid(self, lang: str):
         """Finds any possible voice id for a given language"""
         for file in os.listdir(self.mbrola_voices_folder):
             if fnmatch.fnmatch(file, lang + "[0-9]"):
                 return int(file.strip(lang))
-        return 1 # default to 1 if no voice are found (although it'll probably fail then)
+        return 1  # default to 1 if no voice are found (although it'll probably fail then)
 
     @property
     def player(self):
@@ -123,12 +134,25 @@ class Voice:
         logging.debug("Running synth command %s" % synth_string)
         return self._wav_format(run(synth_string, shell=True, stdout=PIPE, stderr=PIPE).stdout)
 
-    def _str_to_phonems(self, text : str) -> PhonemList:
-        phonem_synth_string = 'MALLOC_CHECK_=0 espeak -s %d -p %d --pho -q -v mb/mb-%s%d %s ' \
-                              % (self.speed, self.pitch, self.lang, self.sex, text)
+    def _str_to_phonems(self, text: str) -> PhonemList:
+        # Detailed explanation of options:
+        # http://espeak.sourceforge.net/commands.html
+        phonem_synth_args = [
+            self.espeak_binary,
+            '-s', str(self.speed),
+            '-p', str(self.pitch),
+            '--pho',    # outputs mbrola phoneme data
+            '-q',       # quiet mode
+            '-v', 'mb-' + self.lang + str(self.sex),
+            text]
 
-        logging.debug("Running espeak command %s" % phonem_synth_string)
-        return PhonemList(run(phonem_synth_string, shell=True, stdout=PIPE, stderr=PIPE)
+        # Linux-specific memory management setting
+        # TODO: An explanation why this setting is necessary
+        if platform == 'linux2':
+            phonem_synth_args.insert(0, 'MALLOC_CHECK_=0')
+
+        logging.debug("Running espeak command %s" % phonem_synth_args)
+        return PhonemList(run(phonem_synth_args, shell=True, stdout=PIPE, stderr=PIPE)
                           .stdout
                           .decode("utf-8")
                           .strip())
