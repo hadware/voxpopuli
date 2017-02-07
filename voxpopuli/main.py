@@ -58,7 +58,7 @@ class Voice:
     class InvalidVoiceParameters(Exception):
         pass
 
-    if platform == 'linux2':
+    if platform == 'linux':
         espeak_binary = 'espeak'
         mbrola_binary = 'mbrola'
         mbrola_voices_folder = "/usr/share/mbrola"
@@ -147,11 +147,11 @@ class Voice:
             text]
 
         # Linux-specific memory management setting
-        # TODO: An explanation why this setting is necessary
+        # Tells GLIB to ignore allocations problems (which happen but don't compromise espeak's outputs)
         if platform == 'linux2':
             phonem_synth_args.insert(0, 'MALLOC_CHECK_=0')
 
-        logging.debug("Running espeak command %s" % phonem_synth_args)
+        logging.debug("Running espeak command %s" % " ".join(phonem_synth_args))
         return PhonemList(run(phonem_synth_args, shell=True, stdout=PIPE, stderr=PIPE)
                           .stdout
                           .decode("utf-8")
