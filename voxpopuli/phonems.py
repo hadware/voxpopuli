@@ -73,8 +73,16 @@ class FrenchPhonems:
     _all = VOWELS | CONSONANTS
 
 
-class SpanishPhonems(AbstractPhonemGroup):
-    pass
+class SpanishPhonems:
+    PLOSIVES = {"p", "b", "t", "d", "k", "g"}
+    AFFRICATES = {'tS', 'jj'}
+    FRICATIVES = {'f', 'B', 'T', 'D', 's', 'x', 'G'}
+    NASAL = {'J', 'm', 'n'}
+    LIQUIDS = {'rr', 'L', 'l', 'r'}
+    CONSONANTS = PLOSIVES | AFFRICATES | FRICATIVES | LIQUIDS | NASAL
+    VOWELS = {'a', 'e', 'i', 'o', 'u'}
+    ACCENTS = {'"'}
+    _all = VOWELS | CONSONANTS | ACCENTS
 
 
 class BritishEnglishPhonems(AbstractPhonemGroup):
@@ -92,7 +100,7 @@ class BritishEnglishPhonems(AbstractPhonemGroup):
     CENTRAL = {'@'}
     VOWELS = CHECKED | FREE | INDETERMINATE | CENTRAL
     ADDITIONALS = {"?", "x"}
-    _all = VOWELS | CONSONANTS
+    _all = VOWELS | CONSONANTS | ADDITIONALS
 
 
 class GermanPhonems(AbstractPhonemGroup):
