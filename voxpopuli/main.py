@@ -143,16 +143,16 @@ class Voice:
             '-p', str(self.pitch),
             '--pho',    # outputs mbrola phoneme data
             '-q',       # quiet mode
-            '-v', 'mb-' + self.lang + str(self.sex),
+            '-v', ('mb/mb-%s%d' if platform == 'linux' else 'mb-') % (self.lang, self.sex),
             text]
 
         # Linux-specific memory management setting
-        # Tells GLIB to ignore allocations problems (which happen but don't compromise espeak's outputs)
-        if platform == 'linux2':
+        # Tells Clib to ignore allocations problems (which happen but don't compromise espeak's outputs)
+        if platform == 'linux':
             phonem_synth_args.insert(0, 'MALLOC_CHECK_=0')
 
         logging.debug("Running espeak command %s" % " ".join(phonem_synth_args))
-        return PhonemList(run(phonem_synth_args, shell=True, stdout=PIPE, stderr=PIPE)
+        return PhonemList(run(" ".join(phonem_synth_args), shell=True, stdout=PIPE, stderr=PIPE)
                           .stdout
                           .decode("utf-8")
                           .strip())
