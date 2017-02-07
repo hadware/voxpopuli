@@ -127,6 +127,15 @@ Notes:
  used by espeak and mbrola are available as class attributes like in the `EnglishPhonems` 
  class used before.
  * More info on the phonems can be found here: [SAMPA page](http://www.phon.ucl.ac.uk/home/sampa/)
+ 
+ ## Windows installation
+
+* `pip install voxpopuli`
+* Download and install espeak: http://sourceforge.net/projects/espeak/files/espeak/espeak-1.48/setup_espeak-1.48.04.exe
+* Download and install mbrola: https://tcts.fpms.ac.be/synthesis/mbrola/bin/pcwin/MbrolaTools35.exe
+* Download voice files you need: https://tcts.fpms.ac.be/synthesis/mbrola/mbrcopybin.html
+* Unpack them into a single location (for example `D:\mbrola-voices\`) so that each voice package is in its own folder
+* From each voice folder copy the main file (for example `fr1`) and put it in `\espeak-data\mbrola` folder in your epeak installation.
 
 ## What's left to do
 
