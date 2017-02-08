@@ -36,6 +36,8 @@ sudo apt install mbrola-*
 * `pip install voxpopuli`
 * Download and install espeak: http://sourceforge.net/projects/espeak/files/espeak/espeak-1.48/setup_espeak-1.48.04.exe
 * Download and install mbrola: https://tcts.fpms.ac.be/synthesis/mbrola/bin/pcwin/MbrolaTools35.exe
+* Download mbrola DOS binary: http://tcts.fpms.ac.be/synthesis/mbrola/bin/pcdos/mbr301d.zip
+* Unpack the .zip archive and put `mbrola.exe` into your mbrola folder.
 * Download voice files you need: https://tcts.fpms.ac.be/synthesis/mbrola/mbrcopybin.html
 * Unpack them into a single location (for example `D:\mbrola-voices\`) so that each voice package is in its own folder
 * From each voice folder copy the main file (for example `fr1`) and put it in `\espeak-data\mbrola` folder in your epeak installation.
