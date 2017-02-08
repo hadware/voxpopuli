@@ -63,7 +63,7 @@ class Voice:
         mbrola_binary = 'mbrola'
         mbrola_voices_folder = "/usr/share/mbrola"
     elif platform == 'win32':
-        espeak_binary = 'C:\\Program Files (x86)\\eSpeak\\command_line\\espeak'
+        espeak_binary = '"C:\\Program Files (x86)\\eSpeak\\command_line\\espeak"'
         mbrola_binary = 'C:\\Program Files (x86)\\Mbrola Tools\\phoplayer'
         # TODO: a default value on Windows for mbrola_voices_folder
         # TODO: raise error if no binary is installed
@@ -143,7 +143,7 @@ class Voice:
             '-p', str(self.pitch),
             '--pho',    # outputs mbrola phoneme data
             '-q',       # quiet mode
-            '-v', ('mb/mb-%s%d' if platform == 'linux' else 'mb-') % (self.lang, self.sex),
+            '-v', ('mb/mb-%s%d' if platform == 'linux' else 'mb-%s%d') % (self.lang, self.sex),
             text]
 
         # Linux-specific memory management setting
