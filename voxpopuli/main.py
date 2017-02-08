@@ -63,8 +63,9 @@ class Voice:
         mbrola_binary = 'mbrola'
         mbrola_voices_folder = "/usr/share/mbrola"
     elif platform == 'win32':
+        # If the path has spaces it needs to be enclosed in double quotes.
         espeak_binary = '"C:\\Program Files (x86)\\eSpeak\\command_line\\espeak"'
-        mbrola_binary = 'C:\\Program Files (x86)\\Mbrola Tools\\phoplayer'
+        mbrola_binary = '"C:\\Program Files (x86)\\Mbrola Tools\\mbrola"'
         # TODO: a default value on Windows for mbrola_voices_folder
         # TODO: raise error if no binary is installed
     else:
@@ -126,15 +127,10 @@ class Voice:
     def _wav_format(self, wav: bytes):
         return wav[:4] + pack('<I', len(wav) - 8) + wav[8:40] + pack('<I', len(wav) - 44) + wav[44:]
 
-    def _str_to_audio(self, text : str) -> bytes:
-        synth_string = 'MALLOC_CHECK_=0 espeak -s %d -p %d --pho -q -v mb/mb-%s%d %s ' \
-                       '| MALLOC_CHECK_=0 mbrola -v %g -e /usr/share/mbrola/%s%d/%s%d - -.wav' \
-                       % (self.speed, self.pitch, self.lang, self.sex, text,  # for espeak
-                          self.volume, self.lang, self.voice_id, self.lang, self.voice_id) # for mbrola
-        logging.debug("Running synth command %s" % synth_string)
-        return self._wav_format(run(synth_string, shell=True, stdout=PIPE, stderr=PIPE).stdout)
-
     def _str_to_phonems(self, text: str) -> PhonemList:
+        
+        voice_filename = ('mb/mb-%s%d' if platform == 'linux' else 'mb-%s%d') % (self.lang, self.sex)
+
         # Detailed explanation of options:
         # http://espeak.sourceforge.net/commands.html
         phonem_synth_args = [
@@ -143,7 +139,7 @@ class Voice:
             '-p', str(self.pitch),
             '--pho',    # outputs mbrola phoneme data
             '-q',       # quiet mode
-            '-v', ('mb/mb-%s%d' if platform == 'linux' else 'mb-%s%d') % (self.lang, self.sex),
+            '-v', voice_filename,
             text]
 
         # Linux-specific memory management setting
@@ -152,23 +148,45 @@ class Voice:
             phonem_synth_args.insert(0, 'MALLOC_CHECK_=0')
 
         logging.debug("Running espeak command %s" % " ".join(phonem_synth_args))
-        return PhonemList(run(" ".join(phonem_synth_args), shell=True, stdout=PIPE, stderr=PIPE)
+
+        # Since MALLOC_CHECK_ has to be used before anything else, we need to compile the full command as a single
+        # string and we need to use `shell=True`.
+        return PhonemList(run(' '.join(phonem_synth_args), shell=True, stdout=PIPE, stderr=PIPE)
                           .stdout
                           .decode("utf-8")
                           .strip())
 
-    def _phonems_to_audio(self, phonems : PhonemList) -> bytes:
-        audio_synth_string = 'MALLOC_CHECK_=0 mbrola -v %g -e /usr/share/mbrola/%s%d/%s%d - -.wav' \
-                             % (self.volume, self.lang, self.voice_id, self.lang, self.voice_id)
+    def _phonems_to_audio(self, phonems: PhonemList) -> bytes:
 
-        logging.debug("Running mbrola command %s" % audio_synth_string)
-        return self._wav_format(run(audio_synth_string, shell=True, stdout=PIPE,
+        database = '%s%s%d/%s%d' % (self.mbrola_voices_folder, self.lang, self.voice_id, self.lang, self.voice_id)
+
+        audio_synth_string = [
+            self.mbrola_binary,
+            '-v', str(self.volume),
+            '-e',       # ignores fatal errors on unknown diphone
+            database,
+            '-',        # command or .pho file; `-` instead of a file means stdin
+            '-.wav'     # output file; `-` instead of a file means stdout
+        ]
+
+        if platform == 'linux':
+            audio_synth_string.insert(0, 'MALLOC_CHECK_=0')
+
+        logging.debug("Running mbrola command %s" % " ".join(audio_synth_string))
+        return self._wav_format(run(" ".join(audio_synth_string), shell=True, stdout=PIPE,
                                     stderr=PIPE, input=str(phonems).encode("utf-8")).stdout)
 
-    def to_phonems(self, text : str) -> PhonemList:
+    def _str_to_audio(self, text: str) -> bytes:
+
+        phonems = self._str_to_phonems(text)
+        audio = self._phonems_to_audio(phonems)
+
+        return audio
+
+    def to_phonems(self, text: str) -> PhonemList:
         return self._str_to_phonems(quote(text))
 
-    def to_audio(self, speech : Union[PhonemList, str], filename = None) -> bytes:
+    def to_audio(self, speech: Union[PhonemList, str], filename=None) -> bytes:
         """Renders a str or a `PhonemList` to a wave byte object. If a filename is specified, it saves the
         audio file to wave as well"""
         if isinstance(speech, str):
@@ -182,7 +200,7 @@ class Voice:
 
         return wav
 
-    def say(self, speech : Union[PhonemList, str]):
+    def say(self, speech: Union[PhonemList, str]):
         """Renders a string or a `PhonemList` object to audio, then plays it using the PyAudio lib"""
         wav = self.to_audio(speech)
         self.player.set_file(io.BytesIO(wav))
@@ -190,7 +208,7 @@ class Voice:
 
     def listvoices(self):
         """Returns a dictionary listing available voice id's for each language"""
-        langs = {} # type:Dict[List]
+        langs = {}  # type:Dict[List]
         for file in os.listdir(self.mbrola_voices_folder):
             match = re.match(r"([a-z]{2})([0-9])", file)
             if match is not None:
@@ -199,3 +217,4 @@ class Voice:
                     langs[lang] = []
                 langs[lang].append(voice_id)
         return langs
+
