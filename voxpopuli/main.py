@@ -149,14 +149,15 @@ class Voice:
 
         # Since MALLOC_CHECK_ has to be used before anything else, we need to compile the full command as a single
         # string and we need to use `shell=True`.
-        return PhonemeList(run(' '.join(phonem_synth_args), shell=True, stdout=PIPE, stderr=PIPE)
-                          .stdout
-                          .decode("utf-8")
-                          .strip())
+        return PhonemeList(run(' '.join(phoneme_synth_args), shell=True, stdout=PIPE, stderr=PIPE)
+                           .stdout
+                           .decode("utf-8")
+                           .strip())
 
     def _phonemes_to_audio(self, phonemes: PhonemeList) -> bytes:
 
-        voice_phonemic_db = '%s%s%d/%s%d' % (self.mbrola_voices_folder, self.lang, self.voice_id, self.lang, self.voice_id)
+        voice_phonemic_db = ('%s/%s%d/%s%d' if platform == "linux" else '%s\%s%d\%s%d') \
+                            % (self.mbrola_voices_folder, self.lang, self.voice_id, self.lang, self.voice_id)
 
         audio_synth_string = [
             self.mbrola_binary,
@@ -177,14 +178,14 @@ class Voice:
     def _str_to_audio(self, text: str) -> bytes:
 
         phonemes_list = self._str_to_phonemes(text)
-        audio = self._phonems_to_audio(phonemes_list)
+        audio = self._phonemes_to_audio(phonemes_list)
 
         return audio
 
-    def to_phonems(self, text: str) -> PhonemeList:
+    def to_phonemes(self, text: str) -> PhonemeList:
         return self._str_to_phonemes(quote(text))
 
-    def to_audio(self, speech: Union[PhonemList, str], filename=None) -> bytes:
+    def to_audio(self, speech: Union[PhonemeList, str], filename=None) -> bytes:
         """Renders a str or a `PhonemeList` to a wave byte object. If a filename is specified, it saves the
         audio file to wave as well"""
         if isinstance(speech, str):
