@@ -23,12 +23,15 @@ class Phoneme:
 
     @classmethod
     def from_str(cls, pho_str):
+        """Instanciates a phoneme from a line of espeak's phoneme output."""
         split_pho = pho_str.split()
         name = split_pho.pop(0)  # type:str
         duration = int(split_pho.pop(0))  # type:int
         return cls(name, duration, [(int(percent), int(pitch)) for percent, pitch in pairwise(split_pho)])
 
     def set_from_pitches_list(self, pitch_list : List[int]):
+        """Set pitches variations from a list of frequencies. The pitch variation are set to be
+        equidistant from one another."""
         segment_length = 100 / (len(pitch_list) - 1)
         self.pitch_modifiers = [(i * segment_length, pitch) for i, pitch in enumerate(pitch_list)]
 
@@ -49,7 +52,7 @@ class PhonemeList(list):
         return "".join([str(phonem.name) for phonem in self])
 
 
-class AbstractPhonemGroup:
+class AbstractPhonemeGroup:
     _all = set()
 
     def __contains__(self, item):
@@ -85,7 +88,7 @@ class Spanishphonemes:
     _all = VOWELS | CONSONANTS | ACCENTS
 
 
-class BritishEnglishphonemes(AbstractPhonemGroup):
+class BritishEnglishphonemes(AbstractPhonemeGroup):
     PLOSIVES = {'b', 'd', 'g', 'k', 'p', 't'}
     AFFRICATES = {'dZ', 'tS'}
     FRICATIVES = {'D', 'S', 'T', 'Z', 'f', 'h', 's', 'v', 'z'}
@@ -103,7 +106,7 @@ class BritishEnglishphonemes(AbstractPhonemGroup):
     _all = VOWELS | CONSONANTS | ADDITIONALS
 
 
-class Germanphonemes(AbstractPhonemGroup):
+class Germanphonemes(AbstractPhonemeGroup):
     PLOSIVES = {'b', 'd', 'g', 'k', 'p', 't'}
     GLOTTAL_STOP = "?"
     AFFRICATES = {'dZ', 'pf', 'tS', 'ts'}
