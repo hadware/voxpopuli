@@ -100,47 +100,47 @@ is 160 wpm.
  * volume, float ratio applied to the output sample. Some languages have presets
     that our best specialists tested. Otherwise, defaults to 1.
 
-### Handling the phonemic form
+### Handling the phonemeic form
 
 To render a string of text to audio, the Voice object actually chains espeak's output
 to mbrola, who then renders it to audio. Espeak only renders the text to a list of
-phonems (such as the one in the IPA), who then are to be processed by mbrola.
+phonemes (such as the one in the IPA), who then are to be processed by mbrola.
 For those who like pictures, here is a diagram of what happens when you run
 `voice.to_audio("Hello world")`
 
-![Phonems](doc/phonems.png?raw=true)
+![phonemes](doc/phonemes.png?raw=true)
 
-Phonems are represented sequentially by a code, a duration in milliseconds, and
+phonemes are represented sequentially by a code, a duration in milliseconds, and
 a list of pitch modifiers. The pitch modifiers are a list of couples, each couple
 representing the percentage of the sample at which to apply the pitch modification and
 the pitch. 
 
-Funny thing is, with voxpopuli, you can "intercept" that phonemlist as a
+Funny thing is, with voxpopuli, you can "intercept" that phoneme list as a
 simple object, modify it, and then pass it back to the voice to render it to
 audio. For instance, let's make a simple alteration that'll double the
 duration for each vowels in an english text.
 
 ```python
-from voxpopuli import Voice, EnglishPhonems
+from voxpopuli import Voice, EnglishPhonemes
 
 voice = Voice(lang="en")
-# here's how you get the phonems list
-phonem_list = voice.to_phonems("Now go away or I will taunt you a second time.") 
-for phonem in phonem_list: #phonem list object inherits from the list object
-    if phonem.name in EnglishPhonems.VOWELS:
-        phonem.duration *= 3
+# here's how you get the phonemes list
+phoneme_list = voice.to_phonemes("Now go away or I will taunt you a second time.") 
+for phoneme in phoneme_list: #phoneme list object inherits from the list object
+    if phoneme.name in EnglishPhonemes.VOWELS:
+        phoneme.duration *= 3
         
 # rendering and saving the sound, then saying it out loud:
-voice.to_audio(phonem_list, "modified.wav")
-voice.say(phonem_list)
+voice.to_audio(phoneme_list, "modified.wav")
+voice.say(phoneme_list)
 ```
 
 Notes:
 
- * For French, Spanish, American English, British English and german, the phonem codes
- used by espeak and mbrola are available as class attributes like in the `EnglishPhonems` 
+ * For French, Spanish, American English, British English and german, the phoneme codes
+ used by espeak and mbrola are available as class attributes like in the `Englishphonemes` 
  class used before.
- * More info on the phonems can be found here: [SAMPA page](http://www.phon.ucl.ac.uk/home/sampa/)
+ * More info on the phonemes can be found here: [SAMPA page](http://www.phon.ucl.ac.uk/home/sampa/)
  
 
 ## What's left to do
