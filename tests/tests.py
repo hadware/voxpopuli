@@ -10,15 +10,15 @@ class TestStrToPhonems(unittest.TestCase):
 
     def test_french(self):
         voice = Voice(lang="fr")
-        self.assertEqual(voice.to_phonems("bonjour").phonemes_str, "bo~ZuR__")
+        self.assertEqual(voice.to_phonemes("bonjour").phonemes_str, "bo~ZuR__")
 
     def test_english(self):
         voice = Voice(lang="en")
-        self.assertEqual(voice.to_phonems("hello").phonemes_str, "h@l@U__")
+        self.assertEqual(voice.to_phonemes("hello").phonemes_str, "h@l@U__")
 
     def test_german(self):
         voice = Voice(lang="de")
-        self.assertEqual(voice.to_phonems("hallo").phonemes_str, "halo:__")
+        self.assertEqual(voice.to_phonemes("hallo").phonemes_str, "halo:__")
 
 
 class TestStrToAudio(unittest.TestCase):

@@ -16,7 +16,7 @@ from typing import List, Dict
 
 import pyaudio
 
-from .phonems import PhonemList
+from .phonemes import PhonemeList
 
 
 class AudioPlayer:
@@ -134,10 +134,10 @@ class Voice:
         logging.debug("Running synth command %s" % synth_string)
         return self._wav_format(run(synth_string, shell=True, stdout=PIPE, stderr=PIPE).stdout)
 
-    def _str_to_phonems(self, text: str) -> PhonemList:
+    def _str_to_phonemes(self, text: str) -> PhonemeList:
         # Detailed explanation of options:
         # http://espeak.sourceforge.net/commands.html
-        phonem_synth_args = [
+        phoneme_synth_args = [
             self.espeak_binary,
             '-s', str(self.speed),
             '-p', str(self.pitch),
@@ -149,32 +149,32 @@ class Voice:
         # Linux-specific memory management setting
         # Tells Clib to ignore allocations problems (which happen but don't compromise espeak's outputs)
         if platform == 'linux':
-            phonem_synth_args.insert(0, 'MALLOC_CHECK_=0')
+            phoneme_synth_args.insert(0, 'MALLOC_CHECK_=0')
 
-        logging.debug("Running espeak command %s" % " ".join(phonem_synth_args))
-        return PhonemList(run(" ".join(phonem_synth_args), shell=True, stdout=PIPE, stderr=PIPE)
-                          .stdout
-                          .decode("utf-8")
-                          .strip())
+        logging.debug("Running espeak command %s" % " ".join(phoneme_synth_args))
+        return PhonemeList(run(" ".join(phoneme_synth_args), shell=True, stdout=PIPE, stderr=PIPE)
+                           .stdout
+                           .decode("utf-8")
+                           .strip())
 
-    def _phonems_to_audio(self, phonems : PhonemList) -> bytes:
+    def _phonemes_to_audio(self, phonemes : PhonemeList) -> bytes:
         audio_synth_string = 'MALLOC_CHECK_=0 mbrola -v %g -e /usr/share/mbrola/%s%d/%s%d - -.wav' \
                              % (self.volume, self.lang, self.voice_id, self.lang, self.voice_id)
 
         logging.debug("Running mbrola command %s" % audio_synth_string)
         return self._wav_format(run(audio_synth_string, shell=True, stdout=PIPE,
-                                    stderr=PIPE, input=str(phonems).encode("utf-8")).stdout)
+                                    stderr=PIPE, input=str(phonemes).encode("utf-8")).stdout)
 
-    def to_phonems(self, text : str) -> PhonemList:
-        return self._str_to_phonems(quote(text))
+    def to_phonemes(self, text : str) -> PhonemeList:
+        return self._str_to_phonemes(quote(text))
 
-    def to_audio(self, speech : Union[PhonemList, str], filename = None) -> bytes:
-        """Renders a str or a `PhonemList` to a wave byte object. If a filename is specified, it saves the
+    def to_audio(self, speech : Union[PhonemeList, str], filename = None) -> bytes:
+        """Renders a str or a `PhonemeList` to a wave byte object. If a filename is specified, it saves the
         audio file to wave as well"""
         if isinstance(speech, str):
             wav = self._str_to_audio(quote(speech))
-        elif isinstance(speech, PhonemList):
-            wav = self._phonems_to_audio(speech)
+        elif isinstance(speech, PhonemeList):
+            wav = self._phonemes_to_audio(speech)
 
         if filename is not None:
             with open(filename, "wb") as wavfile:
@@ -182,8 +182,8 @@ class Voice:
 
         return wav
 
-    def say(self, speech : Union[PhonemList, str]):
-        """Renders a string or a `PhonemList` object to audio, then plays it using the PyAudio lib"""
+    def say(self, speech : Union[PhonemeList, str]):
+        """Renders a string or a `PhonemeList` object to audio, then plays it using the PyAudio lib"""
         wav = self.to_audio(speech)
         self.player.set_file(io.BytesIO(wav))
         self.player.play()
