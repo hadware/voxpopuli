@@ -1,5 +1,5 @@
 
-"""Objects and functions used for parsing and manipulating mbrola phonems"""
+"""Objects and functions used for parsing and manipulating mbrola phonemes"""
 from typing import Tuple, List, Union
 
 
@@ -9,7 +9,7 @@ def pairwise(iterable):
     return zip(a, a)
 
 
-class Phonem:
+class Phoneme:
 
     def __init__(self, name : str, duration : int, pitch_mods : List[Tuple[int, int]] = None):
         self.name = name
@@ -23,21 +23,24 @@ class Phonem:
 
     @classmethod
     def from_str(cls, pho_str):
+        """Instanciates a phoneme from a line of espeak's phoneme output."""
         split_pho = pho_str.split()
         name = split_pho.pop(0)  # type:str
         duration = int(split_pho.pop(0))  # type:int
         return cls(name, duration, [(int(percent), int(pitch)) for percent, pitch in pairwise(split_pho)])
 
     def set_from_pitches_list(self, pitch_list : List[int]):
+        """Set pitches variations from a list of frequencies. The pitch variation are set to be
+        equidistant from one another."""
         segment_length = 100 / (len(pitch_list) - 1)
         self.pitch_modifiers = [(i * segment_length, pitch) for i, pitch in enumerate(pitch_list)]
 
 
-class PhonemList(list):
+class PhonemeList(list):
 
-    def __init__(self, pho_str_list : Union[List[Phonem], str]):
+    def __init__(self, pho_str_list : Union[List[Phoneme], str]):
         if isinstance(pho_str_list, str):
-            super().__init__([Phonem.from_str(pho_str) for pho_str in pho_str_list.split("\n") if pho_str])
+            super().__init__([Phoneme.from_str(pho_str) for pho_str in pho_str_list.split("\n") if pho_str])
         elif isinstance(pho_str_list, list):
             super().__init__(pho_str_list)
 
@@ -49,7 +52,7 @@ class PhonemList(list):
         return "".join([str(phonem.name) for phonem in self])
 
 
-class AbstractPhonemGroup:
+class AbstractPhonemeGroup:
     _all = set()
 
     def __contains__(self, item):
@@ -57,10 +60,10 @@ class AbstractPhonemGroup:
 
 
 ## all these sets are made from information taken here: http://www.phon.ucl.ac.uk/home/sampa/
-## It's the SAMPA (based on IPA) standard for writing phonems in lots of langages
+## It's the SAMPA (based on IPA) standard for writing phonemes in lots of langages
 
 
-class FrenchPhonems:
+class Frenchphonemes:
     PLOSIVES = {"p", "b", "t", "d", "k", "g"}
     FRICATIVES = {'S', 'Z', 'f', 's', 'v', 'z', 'j'}
     NASAL_CONSONANTS = {'J', 'm', 'n', 'N'}
@@ -73,7 +76,7 @@ class FrenchPhonems:
     _all = VOWELS | CONSONANTS
 
 
-class SpanishPhonems:
+class Spanishphonemes:
     PLOSIVES = {"p", "b", "t", "d", "k", "g"}
     AFFRICATES = {'tS', 'jj'}
     FRICATIVES = {'f', 'B', 'T', 'D', 's', 'x', 'G'}
@@ -85,7 +88,7 @@ class SpanishPhonems:
     _all = VOWELS | CONSONANTS | ACCENTS
 
 
-class BritishEnglishPhonems(AbstractPhonemGroup):
+class BritishEnglishphonemes(AbstractPhonemeGroup):
     PLOSIVES = {'b', 'd', 'g', 'k', 'p', 't'}
     AFFRICATES = {'dZ', 'tS'}
     FRICATIVES = {'D', 'S', 'T', 'Z', 'f', 'h', 's', 'v', 'z'}
@@ -103,7 +106,7 @@ class BritishEnglishPhonems(AbstractPhonemGroup):
     _all = VOWELS | CONSONANTS | ADDITIONALS
 
 
-class GermanPhonems(AbstractPhonemGroup):
+class Germanphonemes(AbstractPhonemeGroup):
     PLOSIVES = {'b', 'd', 'g', 'k', 'p', 't'}
     GLOTTAL_STOP = "?"
     AFFRICATES = {'dZ', 'pf', 'tS', 'ts'}

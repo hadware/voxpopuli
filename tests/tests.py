@@ -2,6 +2,7 @@ import unittest
 from os import path
 import logging
 from voxpopuli.main import Voice
+from voxpopuli.phonemes import PhonemeList
 
 logging.getLogger().setLevel(logging.DEBUG)
 
@@ -10,15 +11,15 @@ class TestStrToPhonems(unittest.TestCase):
 
     def test_french(self):
         voice = Voice(lang="fr")
-        self.assertEqual(voice.to_phonems("bonjour").phonemes_str, "bo~ZuR__")
+        self.assertEqual(voice.to_phonemes("bonjour").phonemes_str, "bo~ZuR__")
 
     def test_english(self):
         voice = Voice(lang="en")
-        self.assertEqual(voice.to_phonems("hello").phonemes_str, "h@l@U__")
+        self.assertEqual(voice.to_phonemes("hello").phonemes_str, "h@l@U__")
 
     def test_german(self):
         voice = Voice(lang="de")
-        self.assertEqual(voice.to_phonems("hallo").phonemes_str, "halo:__")
+        self.assertEqual(voice.to_phonemes("hallo").phonemes_str, "halo:__")
 
 
 class TestStrToAudio(unittest.TestCase):
@@ -39,7 +40,22 @@ class TestStrToAudio(unittest.TestCase):
 
 class TestPhonemsToAudio(unittest.TestCase):
     data_folder = path.join(path.dirname(path.realpath(__file__)), "data")
-    pass
+
+    def test_fr(self):
+        with open(path.join(self.data_folder, "salut.pho")) as pho_file:
+            pho_list = PhonemeList(pho_file.read())
+            self.assertEqual(pho_list.phonemes_str, "saly__")
+            wav_byte = Voice(lang="fr").to_audio(pho_list)
+        with open(path.join(self.data_folder, "salut_from_pho.wav"), "rb") as wavfile:
+            self.assertEqual(wavfile.read(), wav_byte)
+
+    def test_en(self):
+        with open(path.join(self.data_folder, "hello.pho")) as pho_file:
+            pho_list = PhonemeList(pho_file.read())
+            self.assertEqual(pho_list.phonemes_str, "h@l@U__")
+            wav_byte = Voice(lang="en").to_audio(pho_list)
+        with open(path.join(self.data_folder, "hello_from_pho.wav"), "rb") as wavfile:
+            self.assertEqual(wavfile.read(), wav_byte)
 
 
 class TestVoiceParams(unittest.TestCase):

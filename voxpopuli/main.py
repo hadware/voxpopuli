@@ -16,7 +16,7 @@ from typing import List, Dict
 
 import pyaudio
 
-from .phonems import PhonemList
+from .phonemes import PhonemeList
 
 
 class AudioPlayer:
@@ -127,13 +127,11 @@ class Voice:
     def _wav_format(self, wav: bytes):
         return wav[:4] + pack('<I', len(wav) - 8) + wav[8:40] + pack('<I', len(wav) - 44) + wav[44:]
 
-    def _str_to_phonems(self, text: str) -> PhonemList:
-        
+    def _str_to_phonemes(self, text: str) -> PhonemeList: 
         voice_filename = ('mb/mb-%s%d' if platform == 'linux' else 'mb-%s%d') % (self.lang, self.sex)
-
         # Detailed explanation of options:
         # http://espeak.sourceforge.net/commands.html
-        phonem_synth_args = [
+        phoneme_synth_args = [
             self.espeak_binary,
             '-s', str(self.speed),
             '-p', str(self.pitch),
@@ -143,28 +141,28 @@ class Voice:
             text]
 
         # Linux-specific memory management setting
-        # Tells Clib to ignore allocations problems (which happen but don't compromise espeak's outputs)
+        # Tells Clib to ignore allocations problems (which happen but doesn't compromise espeak's outputs)
         if platform == 'linux':
-            phonem_synth_args.insert(0, 'MALLOC_CHECK_=0')
+            phoneme_synth_args.insert(0, 'MALLOC_CHECK_=0')
 
-        logging.debug("Running espeak command %s" % " ".join(phonem_synth_args))
+        logging.debug("Running espeak command %s" % " ".join(phoneme_synth_args))
 
         # Since MALLOC_CHECK_ has to be used before anything else, we need to compile the full command as a single
         # string and we need to use `shell=True`.
-        return PhonemList(run(' '.join(phonem_synth_args), shell=True, stdout=PIPE, stderr=PIPE)
+        return PhonemeList(run(' '.join(phonem_synth_args), shell=True, stdout=PIPE, stderr=PIPE)
                           .stdout
                           .decode("utf-8")
                           .strip())
 
-    def _phonems_to_audio(self, phonems: PhonemList) -> bytes:
+    def _phonemes_to_audio(self, phonemes: PhonemeList) -> bytes:
 
-        database = '%s%s%d/%s%d' % (self.mbrola_voices_folder, self.lang, self.voice_id, self.lang, self.voice_id)
+        voice_phonemic_db = '%s%s%d/%s%d' % (self.mbrola_voices_folder, self.lang, self.voice_id, self.lang, self.voice_id)
 
         audio_synth_string = [
             self.mbrola_binary,
             '-v', str(self.volume),
             '-e',       # ignores fatal errors on unknown diphone
-            database,
+            voice_phonemic_db,
             '-',        # command or .pho file; `-` instead of a file means stdin
             '-.wav'     # output file; `-` instead of a file means stdout
         ]
@@ -174,25 +172,25 @@ class Voice:
 
         logging.debug("Running mbrola command %s" % " ".join(audio_synth_string))
         return self._wav_format(run(" ".join(audio_synth_string), shell=True, stdout=PIPE,
-                                    stderr=PIPE, input=str(phonems).encode("utf-8")).stdout)
+                                    stderr=PIPE, input=str(phonemes).encode("utf-8")).stdout)
 
     def _str_to_audio(self, text: str) -> bytes:
 
-        phonems = self._str_to_phonems(text)
-        audio = self._phonems_to_audio(phonems)
+        phonemes_list = self._str_to_phonemes(text)
+        audio = self._phonems_to_audio(phonemes_list)
 
         return audio
 
-    def to_phonems(self, text: str) -> PhonemList:
-        return self._str_to_phonems(quote(text))
+    def to_phonems(self, text: str) -> PhonemeList:
+        return self._str_to_phonemes(quote(text))
 
     def to_audio(self, speech: Union[PhonemList, str], filename=None) -> bytes:
-        """Renders a str or a `PhonemList` to a wave byte object. If a filename is specified, it saves the
+        """Renders a str or a `PhonemeList` to a wave byte object. If a filename is specified, it saves the
         audio file to wave as well"""
         if isinstance(speech, str):
             wav = self._str_to_audio(quote(speech))
-        elif isinstance(speech, PhonemList):
-            wav = self._phonems_to_audio(speech)
+        elif isinstance(speech, PhonemeList):
+            wav = self._phonemes_to_audio(speech)
 
         if filename is not None:
             with open(filename, "wb") as wavfile:
@@ -200,8 +198,8 @@ class Voice:
 
         return wav
 
-    def say(self, speech: Union[PhonemList, str]):
-        """Renders a string or a `PhonemList` object to audio, then plays it using the PyAudio lib"""
+    def say(self, speech: Union[PhonemeList, str]):
+        """Renders a string or a `PhonemeList` object to audio, then plays it using the PyAudio lib"""
         wav = self.to_audio(speech)
         self.player.set_file(io.BytesIO(wav))
         self.player.play()
