@@ -49,6 +49,14 @@ class TestPhonemsToAudio(unittest.TestCase):
         with open(path.join(self.data_folder, "salut_from_pho.wav"), "rb") as wavfile:
             self.assertEqual(wavfile.read(), wav_byte)
 
+    def test_en(self):
+        with open(path.join(self.data_folder, "hello.pho")) as pho_file:
+            pho_list = PhonemeList(pho_file.read())
+            self.assertEqual(pho_list.phonemes_str, "h@l@U__")
+            wav_byte = Voice(lang="en").to_audio(pho_list)
+        with open(path.join(self.data_folder, "hello_from_pho.wav"), "rb") as wavfile:
+            self.assertEqual(wavfile.read(), wav_byte)
+
 
 class TestVoiceParams(unittest.TestCase):
     data_folder = path.join(path.dirname(path.realpath(__file__)), "data")
