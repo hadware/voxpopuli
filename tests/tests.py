@@ -2,6 +2,7 @@ import unittest
 from os import path
 import logging
 from voxpopuli.main import Voice
+from voxpopuli.phonemes import PhonemeList
 
 logging.getLogger().setLevel(logging.DEBUG)
 
@@ -39,7 +40,14 @@ class TestStrToAudio(unittest.TestCase):
 
 class TestPhonemsToAudio(unittest.TestCase):
     data_folder = path.join(path.dirname(path.realpath(__file__)), "data")
-    pass
+
+    def test_fr(self):
+        with open(path.join(self.data_folder, "salut.pho")) as pho_file:
+            pho_list = PhonemeList(pho_file.read())
+            self.assertEqual(pho_list.phonemes_str, "saly__")
+            wav_byte = Voice(lang="fr").to_audio(pho_list)
+        with open(path.join(self.data_folder, "salut_from_pho.wav"), "rb") as wavfile:
+            self.assertEqual(wavfile.read(), wav_byte)
 
 
 class TestVoiceParams(unittest.TestCase):
