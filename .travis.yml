@@ -11,8 +11,9 @@ addons:
       - mbrola-*
       - libasound2-dev
 
+
 install:
-  - python setup.py install
+  - pip install --user -r requirements.txt
 
 script:
   - python setup.py test
