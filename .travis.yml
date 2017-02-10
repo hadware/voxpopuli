@@ -9,11 +9,7 @@ addons:
       - espeak
       - mbrola
       - mbrola-*
-      - libasound2-dev
-
-
-install:
-  - pip install --user -r requirements.txt
+      - python3-pyaudio
 
 script:
   - python setup.py test
