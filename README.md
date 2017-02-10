@@ -100,7 +100,7 @@ is 160 wpm.
  * volume, float ratio applied to the output sample. Some languages have presets
     that our best specialists tested. Otherwise, defaults to 1.
 
-### Handling the phonemeic form
+### Handling the phonemic form
 
 To render a string of text to audio, the Voice object actually chains espeak's output
 to mbrola, who then renders it to audio. Espeak only renders the text to a list of
