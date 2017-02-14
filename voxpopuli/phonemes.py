@@ -40,7 +40,7 @@ class PhonemeList(list):
 
     def __init__(self, pho_str_list : Union[List[Phoneme], str]):
         if isinstance(pho_str_list, str):
-            super().__init__([Phoneme.from_str(pho_str) for pho_str in pho_str_list.split("\n") if pho_str])
+            super().__init__([Phoneme.from_str(pho_str) for pho_str in pho_str_list.split("\n") if pho_str.strip()])
         elif isinstance(pho_str_list, list):
             super().__init__(pho_str_list)
 
