@@ -19,7 +19,7 @@ class TestStrToPhonems(unittest.TestCase):
         
     def test_english_letter_n(self):
         voice = Voice(lang="en")
-        self.assertEqual(voice.to_phonems("second").phonemes_str, "sek@nd__")
+        self.assertEqual(voice.to_phonemes("second").phonemes_str, "sek@nd__")
 
     def test_german(self):
         voice = Voice(lang="de")
