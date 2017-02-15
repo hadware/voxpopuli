@@ -43,12 +43,13 @@ class AudioPlayer:
     def play(self):
         """ Play entire file """
         data = self.wf.readframes(self.chunk)
-        while data != '':
+        while data != b'':
             self.stream.write(data)
             data = self.wf.readframes(self.chunk)
 
     def close(self):
         """ Graceful shutdown """
+        self.stream.stop_stream()
         self.stream.close()
         self.p.terminate()
 
@@ -204,6 +205,7 @@ class Voice:
         wav = self.to_audio(speech)
         self.player.set_file(io.BytesIO(wav))
         self.player.play()
+        self.player.close()
 
     def listvoices(self):
         """Returns a dictionary listing available voice id's for each language"""
