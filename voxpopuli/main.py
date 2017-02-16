@@ -43,12 +43,13 @@ class AudioPlayer:
     def play(self):
         """ Play entire file """
         data = self.wf.readframes(self.chunk)
-        while data != '':
+        while data != b'':
             self.stream.write(data)
             data = self.wf.readframes(self.chunk)
 
     def close(self):
         """ Graceful shutdown """
+        self.stream.stop_stream()
         self.stream.close()
         self.p.terminate()
 
@@ -143,7 +144,7 @@ class Voice:
             '--pho',    # outputs mbrola phoneme data
             '-q',       # quiet mode
             '-v', voice_filename,
-            text]
+            '"%s"' % text]
 
         # Linux-specific memory management setting
         # Tells Clib to ignore allocations problems (which happen but doesn't compromise espeak's outputs)
@@ -209,6 +210,7 @@ class Voice:
         wav = self.to_audio(speech)
         self.player.set_file(io.BytesIO(wav))
         self.player.play()
+        self.player.close()
 
     def listvoices(self):
         """Returns a dictionary listing available voice id's for each language"""
