@@ -67,7 +67,7 @@ class Voice:
         # If the path has spaces it needs to be enclosed in double quotes.
         espeak_binary = '"C:\\Program Files (x86)\\eSpeak\\command_line\\espeak"'
         mbrola_binary = '"C:\\Program Files (x86)\\Mbrola Tools\\mbrola"'
-        mbrola_voices_folder = os.path.expanduser('~\\.mbrola')
+        mbrola_voices_folder = os.path.expanduser('~\\.mbrola\\')
         
         if not os.path.exists(mbrola_voices_folder):
             os.makedirs(mbrola_voices_folder)
