@@ -39,16 +39,19 @@ sudo apt install mbrola-*
 * Download mbrola DOS binary: http://tcts.fpms.ac.be/synthesis/mbrola/bin/pcdos/mbr301d.zip
 * Unpack the .zip archive and put `mbrola.exe` into your mbrola folder.
 * Download voice files you need: https://tcts.fpms.ac.be/synthesis/mbrola/mbrcopybin.html
-* Unpack them into a single location (for example `D:\mbrola-voices\`) so that each voice package is in its own folder
+* Unpack them into a single location (the default is `%USERPROFILE%\.mbrola`) so that each voice package is in its own folder
 * From each voice folder copy the main file (for example `fr1`) and put it in `\espeak-data\mbrola` folder in your epeak installation.
-* After importing `Voice` module, don't forget to set the location of your mbrola voices folder:
+
+**Important!**
+
+If your mbrola voices folder is not in the default location, don't forget to set its location after importing `Voice` module:
 
 ```python
 from voxpopuli import Voice
 Voice.mbrola_voices_folder = 'D:\\mbrola-voices\\'
 ```
 
-* Repeat the above with `Voice.espeak_binary` and `Voice.mbrola_binary` if you installed them in non-default locations.
+Repeat the above with `Voice.espeak_binary` and `Voice.mbrola_binary` if you installed them in non-default locations.
 
 ## Usage
 
