@@ -125,6 +125,11 @@ class Voice:
         return self._player
 
     def _wav_format(self, wav: bytes):
+        """Reformats the wav returned by mbrola, which doesn't have the right size headers,
+        since mbrola doesn't know in advance the size of the wav file."""
+        # the five terms of this bytes concatenation are the following:
+        # ["RIFF"] + [CHUCK_SIZE] + [VARIOUS_HEADERS] + [SUBCHUNK_SIZE] + [ACTUAL_AUDIO_DATA]
+        # http://soundfile.sapp.org/doc/WaveFormat/ to get more details
         return wav[:4] + pack('<I', len(wav) - 8) + wav[8:40] + pack('<I', len(wav) - 44) + wav[44:]
 
     def _str_to_phonemes(self, text: str) -> PhonemeList: 

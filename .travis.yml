@@ -11,8 +11,7 @@ addons:
       - espeak
       - mbrola
       - mbrola-*
-      - portaudio19-dev
-      - libportaudio-dev
+      - python3-pyaudio
 
 script:
   - python setup.py test
