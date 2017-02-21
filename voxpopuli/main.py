@@ -67,7 +67,11 @@ class Voice:
         # If the path has spaces it needs to be enclosed in double quotes.
         espeak_binary = '"C:\\Program Files (x86)\\eSpeak\\command_line\\espeak"'
         mbrola_binary = '"C:\\Program Files (x86)\\Mbrola Tools\\mbrola"'
-        # TODO: a default value on Windows for mbrola_voices_folder
+        mbrola_voices_folder = os.path.expanduser('~\\.mbrola\\')
+        
+        if not os.path.exists(mbrola_voices_folder):
+            os.makedirs(mbrola_voices_folder)
+        
         # TODO: raise error if no binary is installed
     else:
         raise ValueError('Unsupported system.')
@@ -95,8 +99,10 @@ class Voice:
             self.lang = lang
             self.voice_id = voice_id
         else:
-            raise self.InvalidVoiceParameters("Voice %s not found. Check language and voice id, or install"
-                                              "by running 'sudo apt install mbrola-%s'" % (voice_name, voice_name))
+            raise self.InvalidVoiceParameters("Voice %s not found. Check language and voice id, or install "
+                                              "by running 'sudo apt install mbrola-%s'. On Windows download "
+                                              "voices from https://tcts.fpms.ac.be/synthesis/mbrola/mbrcopybin.html"
+                                              % (voice_name, voice_name))
 
         if volume is not None:
             self.volume = volume
