@@ -144,7 +144,7 @@ class Voice:
             '--pho',    # outputs mbrola phoneme data
             '-q',       # quiet mode
             '-v', voice_filename,
-            '"%s"' % text]
+            '%s' % text]
 
         # Linux-specific memory management setting
         # Tells Clib to ignore allocations problems (which happen but doesn't compromise espeak's outputs)
