@@ -10,7 +10,7 @@ if os.path.exists('README.rst'):
 
 setup(
     name='voxpopuli',
-    version='0.1.2',
+    version='0.1.3',
     description='A wrapper around Espeak and Mbrola, to do simple Text-To-Speech (TTS),'
                 ' with the possibility to tweak the phonemic form.',
     url='https://github.com/hadware/voxpopuli',
