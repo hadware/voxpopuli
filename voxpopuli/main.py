@@ -16,7 +16,7 @@ from typing import List, Dict
 
 import pyaudio
 
-from .phonemes import PhonemeList
+from .phonemes import BritishEnglishPhonemes, GermanPhonemes, FrenchPhonemes, SpanishPhonemes
 
 
 class AudioPlayer:
@@ -52,6 +52,12 @@ class AudioPlayer:
         self.stream.stop_stream()
         self.stream.close()
         self.p.terminate()
+
+
+lg_code_to_phonem = {"fr": FrenchPhonemes,
+                     "en": BritishEnglishPhonemes,
+                     "es" : SpanishPhonemes,
+                     "de" : GermanPhonemes}
 
 
 class Voice:
@@ -116,6 +122,7 @@ class Voice:
         else:
             self.sex = 4 if self.voice_id in (2, 4) else 1
 
+        self.phonems = lg_code_to_phonem[lang]
         self._player = None
 
     def _find_existing_voiceid(self, lang: str):

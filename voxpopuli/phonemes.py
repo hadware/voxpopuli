@@ -63,7 +63,7 @@ class AbstractPhonemeGroup:
 ## It's the SAMPA (based on IPA) standard for writing phonemes in lots of langages
 
 
-class Frenchphonemes:
+class FrenchPhonemes:
     PLOSIVES = {"p", "b", "t", "d", "k", "g"}
     FRICATIVES = {'S', 'Z', 'f', 's', 'v', 'z', 'j'}
     NASAL_CONSONANTS = {'J', 'm', 'n', 'N'}
@@ -76,7 +76,7 @@ class Frenchphonemes:
     _all = VOWELS | CONSONANTS
 
 
-class Spanishphonemes:
+class SpanishPhonemes:
     PLOSIVES = {"p", "b", "t", "d", "k", "g"}
     AFFRICATES = {'tS', 'jj'}
     FRICATIVES = {'f', 'B', 'T', 'D', 's', 'x', 'G'}
@@ -88,7 +88,7 @@ class Spanishphonemes:
     _all = VOWELS | CONSONANTS | ACCENTS
 
 
-class BritishEnglishphonemes(AbstractPhonemeGroup):
+class BritishEnglishPhonemes(AbstractPhonemeGroup):
     PLOSIVES = {'b', 'd', 'g', 'k', 'p', 't'}
     AFFRICATES = {'dZ', 'tS'}
     FRICATIVES = {'D', 'S', 'T', 'Z', 'f', 'h', 's', 'v', 'z'}
@@ -106,7 +106,7 @@ class BritishEnglishphonemes(AbstractPhonemeGroup):
     _all = VOWELS | CONSONANTS | ADDITIONALS
 
 
-class Germanphonemes(AbstractPhonemeGroup):
+class GermanPhonemes(AbstractPhonemeGroup):
     PLOSIVES = {'b', 'd', 'g', 'k', 'p', 't'}
     GLOTTAL_STOP = "?"
     AFFRICATES = {'dZ', 'pf', 'tS', 'ts'}
