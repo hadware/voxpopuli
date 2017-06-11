@@ -16,7 +16,7 @@ from typing import List, Dict
 
 import pyaudio
 
-from .phonemes import BritishEnglishPhonemes, GermanPhonemes, FrenchPhonemes, SpanishPhonemes
+from .phonemes import BritishEnglishPhonemes, GermanPhonemes, FrenchPhonemes, SpanishPhonemes, PhonemeList
 
 
 class AudioPlayer:
@@ -56,8 +56,8 @@ class AudioPlayer:
 
 lg_code_to_phonem = {"fr": FrenchPhonemes,
                      "en": BritishEnglishPhonemes,
-                     "es" : SpanishPhonemes,
-                     "de" : GermanPhonemes}
+                     "es": SpanishPhonemes,
+                     "de": GermanPhonemes}
 
 
 class Voice:
