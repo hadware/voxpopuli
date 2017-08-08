@@ -118,7 +118,7 @@ phonemes (such as the one in the IPA), who then are to be processed by mbrola.
 For those who like pictures, here is a diagram of what happens when you run
 `voice.to_audio("Hello world")`
 
-![phonemes](doc/phonemes.png?raw=true)
+![phonemes](docs/source/img/phonemes.png?raw=true)
 
 phonemes are represented sequentially by a code, a duration in milliseconds, and
 a list of pitch modifiers. The pitch modifiers are a list of couples, each couple
