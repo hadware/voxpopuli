@@ -63,7 +63,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+docs/build/
 
 # PyBuilder
 target/
@@ -93,5 +93,3 @@ ENV/
 #Pycharm project settings
 .idea
 
-#documentation
-/doc/build/
