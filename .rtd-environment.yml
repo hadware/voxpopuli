@@ -1,0 +1,6 @@
+name: voxpopuli
+
+dependencies:
+  - python>=3
+  - pyaudio
+  - click
