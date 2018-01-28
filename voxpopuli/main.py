@@ -14,8 +14,6 @@ from typing import Union
 import re
 from typing import List, Dict
 
-import pyaudio
-
 from .phonemes import BritishEnglishPhonemes, GermanPhonemes, FrenchPhonemes, SpanishPhonemes, PhonemeList
 
 
@@ -26,6 +24,7 @@ class AudioPlayer:
     def __init__(self):
         """ Init audio stream """
         self.wf, self.stream = None, None
+        import pyaudio
         self.p = pyaudio.PyAudio()
 
     def set_file(self, file):
@@ -221,9 +220,12 @@ class Voice:
     def say(self, speech: Union[PhonemeList, str]):
         """Renders a string or a `PhonemeList` object to audio, then plays it using the PyAudio lib"""
         wav = self.to_audio(speech)
-        self.player.set_file(io.BytesIO(wav))
-        self.player.play()
-        self.player.close()
+        try:
+            self.player.set_file(io.BytesIO(wav))
+            self.player.play()
+            self.player.close()
+        except ImportError:
+            raise ImportError("You must install the pyaudio pip package to be able to use the say() method")
 
     def listvoices(self):
         """Returns a dictionary listing available voice id's for each language"""

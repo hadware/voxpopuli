@@ -29,7 +29,7 @@ setup(
     ],
     keywords='tts speech phonems audio',
     packages=find_packages(),
-    install_requires=['pyaudio'],
+    install_requires=[],
     include_package_data=True,
     test_suite='nose.collector',
     tests_require=['nose'])
