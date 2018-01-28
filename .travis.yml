@@ -11,8 +11,6 @@ addons:
       - espeak
       - mbrola
       - mbrola-*
-      - libjack-jackd2-dev
-      - portaudio19-dev
 
 script:
   - python setup.py test
