@@ -1,13 +1,17 @@
 # Voxpopuli
 [![PyPI](https://img.shields.io/pypi/v/voxpopuli.svg)](https://pypi.python.org/pypi/voxpopuli)
 [![PyPI](https://img.shields.io/pypi/pyversions/voxpopuli.svg)](http://py3readiness.org/)
+[![Documentation Status](https://readthedocs.org/projects/voxpopuli/badge/?version=latest)](http://voxpopuli.readthedocs.io/en/latest/?badge=latest)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
+
 
 **A wrapper around Espeak and Mbrola.**
 
 This is a lightweight Python wrapper for Espeak and Mbrola, two co-dependent TTS tools. It enables you to 
 render sound by simply feeding it text and voice parameters. Phonems (the data transmitted by Espeak to
 mbrola) can also be manipulated using a mimalistic API.
+
+This is a short introduction, but you might want to look at the [readthedoc documentation](http://voxpopuli.readthedocs.io/en/latest/).
 
 ## Install
 
@@ -71,7 +75,7 @@ file option
 with open("salut.wav", "wb") as wavfile:
     wavfile.write(wav)
 ```
-If you wish to hear how it sounds right away, you can always do :
+If you wish to hear how it sounds right away, you'll have to make sure you installed pyaudio *via* pip, and then do:
 ```python
 voice.say("Salut c'est cool")
 ```
