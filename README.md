@@ -35,6 +35,13 @@ by running:
 sudo apt install mbrola-*
 ```
 
+In case the voices you need aren't all in the ubuntu repo's, you can use this convenient little script
+that install voices diretcly from the Mbrola website:
+```sh
+# this installs all british english and french voices for instance
+sudo python3 -m voxpopuli.voice_install en fr
+```
+
 ### Windows installation
 
 * `pip install voxpopuli`

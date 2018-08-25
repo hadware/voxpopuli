@@ -3,6 +3,8 @@ from zipfile import ZipFile
 from io import BytesIO
 from os import makedirs
 import re
+import argparse
+
 
 BASE_URL = "http://tcts.fpms.ac.be/synthesis/mbrola/dba/"
 MBROLA_FOLDER = "/usr/share/mbrola/"
@@ -52,3 +54,13 @@ def install_voices(lang="fr"):
                 create_folder_and_extract(filename.split("/")[0], zfile)
             else:
                 zfile.extract(filename, MBROLA_FOLDER)
+
+
+argparser = argparse.ArgumentParser()
+argparser.add_argument("languages", nargs="+", choices=list(LANG_FILES.keys()), type=str, help="Languages to install")
+
+if __name__ == "__main__":
+    args = argparser.parse_args()
+    for lang in args.languages:
+        print("Installing voices for languages %s" % lang)
+        install_voices(lang)
