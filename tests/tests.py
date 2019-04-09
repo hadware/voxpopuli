@@ -30,13 +30,13 @@ class TestStrToAudio(unittest.TestCase):
     data_folder = path.join(path.dirname(path.realpath(__file__)), "data")
 
     def test_salut(self):
-        voice = Voice(lang="fr")
+        voice = Voice(lang="fr", voice_id=1)
         wav_byte = voice.to_audio("Salut les amis")
         with open(path.join(self.data_folder, "salut.wav"), "rb") as wavfile:
             self.assertEqual(wavfile.read(), wav_byte)
 
     def test_hallo(self):
-        voice = Voice(lang="de")
+        voice = Voice(lang="de", voice_id=4)
         wav_byte = voice.to_audio("Hallo Freunde")
         with open(path.join(self.data_folder, "hallo.wav"), "rb") as wavfile:
             self.assertEqual(wavfile.read(), wav_byte)
@@ -49,7 +49,7 @@ class TestPhonemsToAudio(unittest.TestCase):
         with open(path.join(self.data_folder, "salut.pho")) as pho_file:
             pho_list = PhonemeList(pho_file.read())
             self.assertEqual(pho_list.phonemes_str, "saly__")
-            wav_byte = Voice(lang="fr").to_audio(pho_list)
+            wav_byte = Voice(lang="fr", voice_id=4).to_audio(pho_list)
         with open(path.join(self.data_folder, "salut_from_pho.wav"), "rb") as wavfile:
             self.assertEqual(wavfile.read(), wav_byte)
 

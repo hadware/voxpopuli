@@ -10,7 +10,10 @@ addons:
     packages:
       - espeak
       - mbrola
-      - mbrola-*
+      - mbrola-fr1
+      - mbrola-fr4
+      - mbrola-en1
+      - mbrola-de4
 
 script:
   - python setup.py test
