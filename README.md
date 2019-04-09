@@ -1,6 +1,7 @@
 # Voxpopuli
 [![PyPI](https://img.shields.io/pypi/v/voxpopuli.svg)](https://pypi.python.org/pypi/voxpopuli)
 [![PyPI](https://img.shields.io/pypi/pyversions/voxpopuli.svg)](http://py3readiness.org/)
+[![Build Status](https://travis-ci.org/hadware/voxpopuli.svg?branch=master)](https://travis-ci.org/hadware/voxpopuli)
 [![Documentation Status](https://readthedocs.org/projects/voxpopuli/badge/?version=latest)](http://voxpopuli.readthedocs.io/en/latest/?badge=latest)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 
