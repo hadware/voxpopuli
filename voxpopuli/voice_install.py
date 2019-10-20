@@ -4,34 +4,49 @@ from io import BytesIO
 from os import makedirs
 import re
 import argparse
+from pathlib import Path
 
 
-BASE_URL = "http://tcts.fpms.ac.be/synthesis/mbrola/dba/"
-MBROLA_FOLDER = "/usr/share/mbrola/"
+BASE_URL = "https://github.com/numediart/MBROLA-voices/raw/master/data/%s/%s"
+MBROLA_FOLDER = Path("/usr/share/mbrola/")
 
-LANG_FILES = {"fr": ["fr1/fr1-990204.zip",
-                     "fr2/fr2-980806.zip",
-                     "fr3/fr3-990324.zip",
-                     "fr4/fr4-990521.zip",
-                     "fr5/fr5-991020.zip",
-                     "fr6/fr6-010330.zip",
-                     "fr7/fr7-010330.zip"],
-              "en": ["en1/en1-980910.zip"],
-              "us": ["us1/us1-980512.zip",
-                     "us2/us2-980812.zip",
-                     "us3/us3-990208.zip"],
-              "es": ["es1/es1-980610.zip",
-                     "es2/es2-989825.zip",
-                     "es3/es3.zip",
-                     "es4/es4.zip"],
-              "de": ["de1/de1-980227.zip",
-                     "de2/de2-990106.zip",
-                     "de3/de3-000307.zip",
-                     "de4/de4.zip",
-                     "de5/de5.zip",
-                     "de6/de6.zip",
-                     "de7/de7.zip",
-                     "de8/de8.zip"]}
+LANG_FILES = {'cn': [1],
+              'ir': [1],
+              'hu': [1],
+              'ar': [2, 1],
+              'ca': [1, 2],
+              'cz': [2, 1],
+              'pt': [1],
+              'it': [3, 1, 2, 4],
+              'nl': [3, 1, 2],
+              'fr': [7, 2, 1, 3, 4, 6, 5],
+              'cr': [1],
+              'mx': [1, 2],
+              'ee': [1],
+              'en': [1],
+              'lt': [2, 1],
+              'es': [2, 1, 4, 3],
+              'de': [1, 3, 5, 8, 4, 7, 2, 6],
+              'us': [1, 3, 2],
+              'jp': [2, 3, 1],
+              'bz': [1],
+              'br': [1, 2, 3, 4],
+              'tr': [2, 1],
+              'ma': [1],
+              'ro': [1],
+              'hn': [1],
+              'hb': [1, 2],
+              'tl': [1],
+              'vz': [1],
+              'af': [1],
+              'id': [1],
+              'sw': [2, 1],
+              'in': [1, 2],
+              'la': [1],
+              'gr': [1, 2],
+              'nz': [1],
+              'ic': [1],
+              'pl': [1]}
 
 
 def create_folder_and_extract(voice_name, zfile):
@@ -44,23 +59,29 @@ def create_folder_and_extract(voice_name, zfile):
 
 def install_voices(lang="fr"):
     """Automatically downloads and extracts all the voices for one language in the /usr/share/mbrola folder"""
-    for file in LANG_FILES[lang]:
-        print("Downloading file %s" % file)
-        zipfile = request.urlopen(BASE_URL + file).read()
-        filename = re.match(r"[a-z]{2}[1-9]/[a-z]{2}[1-9]", file).group()
-        print("Extracting file")
-        with ZipFile(BytesIO(zipfile), "r") as zfile:
-            if filename.split("/")[0] in ["fr4", "de4", "de7"]:
-                create_folder_and_extract(filename.split("/")[0], zfile)
-            else:
-                zfile.extract(filename, MBROLA_FOLDER)
+    for voice_id in LANG_FILES[lang]:
+        voice_name = lang + str(voice_id)
+        print("Downloading MBROLA language file for voice %s" % voice_name)
+        voice_data = request.urlopen(BASE_URL % (voice_name, voice_name)).read()
+        # creating folder for the language file
+        print("Writing data for language %s" % voice_name)
+        voice_folder = MBROLA_FOLDER / Path(voice_name)
+        voice_folder.mkdir(parents=True, exist_ok=True)
+        lang_path = voice_folder / Path(voice_name)
+        with open(str(lang_path), "wb") as lang_file:
+            lang_file.write(voice_data)
 
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument("languages", nargs="+", choices=list(LANG_FILES.keys()), type=str, help="Languages to install")
+argparser.add_argument("--all", action="store_true", help="Download all language files")
 
 if __name__ == "__main__":
     args = argparser.parse_args()
-    for lang in args.languages:
+    if args.all:
+        languages = list(LANG_FILES.keys())
+    else:
+        languages = args.languages
+    for lang in languages:
         print("Installing voices for languages %s" % lang)
         install_voices(lang)
