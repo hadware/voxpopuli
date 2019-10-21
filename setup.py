@@ -2,11 +2,16 @@
 """Install config."""
 from setuptools import setup, find_packages
 
+with open("README.md") as readme:
+    long_description = readme.read()
+
 setup(
     name='voxpopuli',
-    version='0.3.2',
+    version='0.3.3',
     description='A wrapper around Espeak and Mbrola, to do simple Text-To-Speech (TTS),'
                 ' with the possibility to tweak the phonemic form.',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/hadware/voxpopuli',
     author='Hadware',
     author_email='hadwarez@gmail.com',
@@ -20,6 +25,8 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
     keywords='tts speech phonemes audio',
     packages=find_packages(),
