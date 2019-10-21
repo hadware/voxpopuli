@@ -26,8 +26,8 @@ class Phoneme:
     def from_str(cls, pho_str):
         """Instanciates a phoneme from a line of espeak's phoneme output."""
         split_pho = pho_str.split()
-        name: str = split_pho.pop(0)
-        duration: int = int(split_pho.pop(0))
+        name = split_pho.pop(0)
+        duration = int(split_pho.pop(0))
         return cls(name, duration, [(int(percent), int(pitch)) for percent, pitch in pairwise(split_pho)])
 
     def set_from_pitches_list(self, pitch_list: List[int]):
