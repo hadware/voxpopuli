@@ -1,6 +1,7 @@
 
 """Objects and functions used for parsing and manipulating mbrola phonemes"""
-from typing import Tuple, List, Union
+from typing import Tuple, List, Union, Iterable
+from collections import MutableSequence
 
 
 def pairwise(iterable):
@@ -25,31 +26,69 @@ class Phoneme:
     def from_str(cls, pho_str):
         """Instanciates a phoneme from a line of espeak's phoneme output."""
         split_pho = pho_str.split()
-        name = split_pho.pop(0)  # type:str
-        duration = int(split_pho.pop(0))  # type:int
+        name: str = split_pho.pop(0)
+        duration: int = int(split_pho.pop(0))
         return cls(name, duration, [(int(percent), int(pitch)) for percent, pitch in pairwise(split_pho)])
 
-    def set_from_pitches_list(self, pitch_list : List[int]):
+    def set_from_pitches_list(self, pitch_list: List[int]):
         """Set pitches variations from a list of frequencies. The pitch variation are set to be
         equidistant from one another."""
         segment_length = 100 / (len(pitch_list) - 1)
         self.pitch_modifiers = [(i * segment_length, pitch) for i, pitch in enumerate(pitch_list)]
 
 
-class PhonemeList(list):
+class PhonemeList(MutableSequence):
+    """A list of phonemes. Can be printed into a .pho string formatted file"""
 
-    def __init__(self, pho_str_list : Union[List[Phoneme], str]):
-        if isinstance(pho_str_list, str):
-            super().__init__([Phoneme.from_str(pho_str) for pho_str in pho_str_list.split("\n") if pho_str.strip()])
-        elif isinstance(pho_str_list, list):
-            super().__init__(pho_str_list)
+    def __init__(self, blocks: Union[Phoneme, Iterable[Phoneme]]):
+        if isinstance(blocks, Phoneme):
+            self._pho_list = [blocks]
+        elif isinstance(blocks, Iterable):
+            self._pho_list = list(blocks)
+        else:
+            raise ValueError("Expecting a list of blocks or a phonemes, got %s"
+                             % str(type(blocks)))
+
+    @classmethod
+    def from_pho_str(cls, pho_str_list: str):
+        return cls([Phoneme.from_str(pho_str) for pho_str in pho_str_list.split("\n") if pho_str.strip()])
+
+    def __len__(self) -> int:
+        return len(self._pho_list)
+
+    def __delitem__(self, index: int):
+        del self._pho_list[index]
+
+    def insert(self, index, value: Phoneme):
+        assert isinstance(value, Phoneme)
+        self._pho_list.insert(index, value)
+
+    def append(self, value: Phoneme):
+        assert isinstance(value, Phoneme)
+        self._pho_list.append(Phoneme)
+
+    def __setitem__(self, index: int, value: Phoneme):
+        assert isinstance(value, Phoneme)
+        self.__setitem__(index, value)
+
+    def __getitem__(self, index: int) -> Phoneme:
+        return self._pho_list[index]
+
+    def __iter__(self) -> Iterable[Phoneme]:
+        return iter(self._pho_list)
+
+    def __add__(self, other: 'PhonemeList'):
+        """Adds two `BlockList` to one another. Tries to merge
+        the last block of the current list to the first of the other one."""
+        assert self.__class__ == other.__class__
+        return PhonemeList(list(self._pho_list) + list(other._pho_list))
 
     def __str__(self):
-        return "\n".join([str(phonem) for phonem in self])
+        return "\n".join([str(phoneme) for phoneme in self])
 
     @property
     def phonemes_str(self):
-        return "".join([str(phonem.name) for phonem in self])
+        return "".join([str(phoneme.name) for phoneme in self])
 
 
 class AbstractPhonemeGroup:

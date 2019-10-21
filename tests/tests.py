@@ -22,7 +22,7 @@ class TestStrToPhonems(unittest.TestCase):
         self.assertEqual(voice.to_phonemes("second").phonemes_str, "sek@nd__")
 
     def test_german(self):
-        voice = Voice(lang="de")
+        voice = Voice(lang="de", voice_id=4)
         self.assertEqual(voice.to_phonemes("hallo").phonemes_str, "halo:__")
 
 
@@ -47,7 +47,7 @@ class TestPhonemsToAudio(unittest.TestCase):
 
     def test_fr(self):
         with open(path.join(self.data_folder, "salut.pho")) as pho_file:
-            pho_list = PhonemeList(pho_file.read())
+            pho_list = PhonemeList.from_pho_str(pho_file.read())
             self.assertEqual(pho_list.phonemes_str, "saly__")
             wav_byte = Voice(lang="fr", voice_id=4).to_audio(pho_list)
         with open(path.join(self.data_folder, "salut_from_pho.wav"), "rb") as wavfile:
@@ -55,7 +55,7 @@ class TestPhonemsToAudio(unittest.TestCase):
 
     def test_en(self):
         with open(path.join(self.data_folder, "hello.pho")) as pho_file:
-            pho_list = PhonemeList(pho_file.read())
+            pho_list = PhonemeList.from_pho_str(pho_file.read())
             self.assertEqual(pho_list.phonemes_str, "h@l@U__")
             wav_byte = Voice(lang="en").to_audio(pho_list)
         with open(path.join(self.data_folder, "hello_from_pho.wav"), "rb") as wavfile:

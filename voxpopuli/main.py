@@ -189,7 +189,7 @@ class Voice:
         # Since MALLOC_CHECK_ has to be used before anything else,
         # we need to compile the full command as a single
         # string and we need to use `shell=True`.
-        return PhonemeList(
+        return PhonemeList.from_pho_str(
             run(' '.join(phoneme_synth_args), shell=True, stdout=PIPE,
                 stderr=PIPE)
                 .stdout
