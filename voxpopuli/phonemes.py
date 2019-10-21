@@ -97,6 +97,8 @@ class AbstractPhonemeGroup:
     def __contains__(self, item):
         return item in self._all
 
+    def __iter__(self):
+        return iter(self._all)
 
 ## all these sets are made from information taken here: http://www.phon.ucl.ac.uk/home/sampa/
 ## It's the SAMPA (based on IPA) standard for writing phonemes in lots of langages
@@ -160,6 +162,29 @@ class GermanPhonemes(AbstractPhonemeGroup):
     CENTRING_DIPHTONGS = {'2:6', '6', '96', 'E6', 'E:6', 'I6', 'O6', 'U6', 'Y6',
                           'a6', 'a:6', 'e:6', 'i:6', 'o:6', 'u:6', 'y:6'}
     _all = VOWELS | SCHWA | CENTRING_DIPHTONGS | CONSONANTS
+
+
+class ItalianPhonemes:
+    SINGLE_PLOSIVES = {'p', 'b', 't', 'd', 'k', 'g'}
+    GEMINATE_PLOSIVES = {'pp', 'bb', 'tt', 'dd', 'kk', 'gg'}
+    PLOSIVES = SINGLE_PLOSIVES | GEMINATE_PLOSIVES
+    SINGLE_AFFRICATES = {'ts', 'dz', 'tS', 'dZ', 'tts', 'ddz', 'ttS', 'ddZ'}
+    GEMINATE_AFFRICATES = {'ts', 'dz', 'tS', 'dZ', 'tts', 'ddz', 'ttS', 'ddZ'}
+    AFFRICATES = SINGLE_AFFRICATES | GEMINATE_AFFRICATES
+    SINGLE_FRICATIVES = {'f', 'v', 's', 'z', 'S'}
+    GEMINATE_FRICATIVES = {'ff', 'vv', 'ss', 'SS'}
+    FRICATIVES = SINGLE_FRICATIVES | GEMINATE_FRICATIVES
+    SINGLE_NASAL = {'J', 'm', 'n'}
+    GEMINATE_NASAL = {'JJ', 'mm', 'nn'}
+    NASAL = SINGLE_NASAL | GEMINATE_NASAL
+    SINGLE_LIQUIDS = {'L', 'l', 'r'}
+    GEMINATE_LIQUIDS = {'LL', 'll', 'rr'}
+    LIQUIDS = SINGLE_LIQUIDS | GEMINATE_LIQUIDS
+    SEMIVOWELS = {'j', 'w'}
+    CONSONANTS = PLOSIVES | AFFRICATES | FRICATIVES | LIQUIDS | NASAL
+    VOWELS = {'i', 'e', 'E', 'a', 'O', 'o', 'u'}
+    ACCENTS = {''}
+    _all = VOWELS | CONSONANTS | ACCENTS
 
 
 

@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='voxpopuli',
-    version='0.3.1',
+    version='0.3.2',
     description='A wrapper around Espeak and Mbrola, to do simple Text-To-Speech (TTS),'
                 ' with the possibility to tweak the phonemic form.',
     url='https://github.com/hadware/voxpopuli',

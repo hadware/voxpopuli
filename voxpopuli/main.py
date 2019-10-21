@@ -16,7 +16,7 @@ from typing import List, Dict
 from typing import Union
 
 from .phonemes import BritishEnglishPhonemes, GermanPhonemes, FrenchPhonemes, \
-    SpanishPhonemes, PhonemeList
+    SpanishPhonemes, ItalianPhonemes, PhonemeList
 
 
 class AudioPlayer:
@@ -58,7 +58,8 @@ class AudioPlayer:
 lg_code_to_phonem = {"fr": FrenchPhonemes,
                      "en": BritishEnglishPhonemes,
                      "es": SpanishPhonemes,
-                     "de": GermanPhonemes}
+                     "de": GermanPhonemes,
+                     "it": ItalianPhonemes}
 
 
 class Voice:
@@ -129,8 +130,10 @@ class Voice:
             self.sex = self.voice_id
         else:
             self.sex = 4 if self.voice_id in (2, 4) else 1
-
-        self.phonems = lg_code_to_phonem[lang]
+        try:
+            self.phonemes = lg_code_to_phonem[lang]
+        except KeyError:
+            self.phonemes = None
         self._player = None
 
     def _find_existing_voiceid(self, lang: str):
