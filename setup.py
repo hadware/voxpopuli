@@ -1,12 +1,6 @@
 # coding=utf-8
 """Install config."""
 from setuptools import setup, find_packages
-import os
-
-long_description = '''A wrapper around Espeak and Mbrola, to do simple Text-To-Speech (TTS),
-    with the possibility to tweak the phonemic form.'''
-if os.path.exists('README.rst'):
-    long_description = open('README.md').read()
 
 setup(
     name='voxpopuli',
