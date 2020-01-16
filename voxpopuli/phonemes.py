@@ -65,7 +65,7 @@ class PhonemeList(MutableSequence):
 
     def append(self, value: Phoneme):
         assert isinstance(value, Phoneme)
-        self._pho_list.append(Phoneme)
+        self._pho_list.append(value)
 
     def __setitem__(self, index: int, value: Phoneme):
         assert isinstance(value, Phoneme)
