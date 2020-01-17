@@ -69,7 +69,7 @@ class PhonemeList(MutableSequence):
 
     def __setitem__(self, index: int, value: Phoneme):
         assert isinstance(value, Phoneme)
-        self.__setitem__(index, value)
+        self._pho_list[index] = value
 
     def __getitem__(self, index: int) -> Phoneme:
         return self._pho_list[index]
