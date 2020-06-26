@@ -143,13 +143,13 @@ audio. For instance, let's make a simple alteration that'll double the
 duration for each vowels in an english text.
 
 ```python
-from voxpopuli import Voice, EnglishPhonemes
+from voxpopuli import Voice, BritishEnglishPhonemes
 
 voice = Voice(lang="en")
 # here's how you get the phonemes list
 phoneme_list = voice.to_phonemes("Now go away or I will taunt you a second time.") 
 for phoneme in phoneme_list: #phoneme list object inherits from the list object
-    if phoneme.name in EnglishPhonemes.VOWELS:
+    if phoneme.name in BritishEnglishPhonemes.VOWELS:
         phoneme.duration *= 3
         
 # rendering and saving the sound, then saying it out loud:
@@ -159,9 +159,8 @@ voice.say(phoneme_list)
 
 Notes:
 
- * For French, Spanish, American English, British English and german, the phoneme codes
- used by espeak and mbrola are available as class attributes like in the `Englishphonemes` 
- class used before.
+ * For French, Spanish, German and Italian, the phoneme codes
+ used by espeak and mbrola are available as class attributes similar to the `BritishEnglishPhonemes` class as above.
  * More info on the phonemes can be found here: [SAMPA page](http://www.phon.ucl.ac.uk/home/sampa/)
  
 
