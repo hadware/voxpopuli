@@ -37,13 +37,16 @@ sudo apt install mbrola-*
 ```
 
 In case the voices you need aren't all in the ubuntu repo's, you can use this convenient little script
-that install voices diretcly from the Mbrola website:
+that install voices diretcly from [Mbrola's voice repo](https://github.com/numediart/MBROLA-voices):
 ```sh
 # this installs all british english and french voices for instance
 sudo python3 -m voxpopuli.voice_install en fr
 ```
 
 ### Windows installation
+
+**Note: this might be out oudated, since Mbrola's website has been replaced by github repositories. If you're willing to try and use voxpopuli 
+on windows and succeeded at setting it up, please do submit a pull request to update this documentation.**
 
 * `pip install voxpopuli`
 * Download and install espeak: http://sourceforge.net/projects/espeak/files/espeak/espeak-1.48/setup_espeak-1.48.04.exe
