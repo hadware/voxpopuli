@@ -55,11 +55,11 @@ class AudioPlayer:
         self.p.terminate()
 
 
-lg_code_to_phonem = {"fr": FrenchPhonemes,
-                     "en": BritishEnglishPhonemes,
-                     "es": SpanishPhonemes,
-                     "de": GermanPhonemes,
-                     "it": ItalianPhonemes}
+lg_code_to_phoneme = {"fr": FrenchPhonemes,
+                      "en": BritishEnglishPhonemes,
+                      "es": SpanishPhonemes,
+                      "de": GermanPhonemes,
+                      "it": ItalianPhonemes}
 
 
 class Voice:
@@ -131,7 +131,7 @@ class Voice:
         else:
             self.sex = 4 if self.voice_id in (2, 4) else 1
         try:
-            self.phonemes = lg_code_to_phonem[lang]
+            self.phonemes = lg_code_to_phoneme[lang]
         except KeyError:
             self.phonemes = None
         self._player = None
@@ -233,10 +233,11 @@ class Voice:
         return audio
 
     def to_phonemes(self, text: str) -> PhonemeList:
+        """Renders a str to a ```PhonemeList`` object."""
         return self._str_to_phonemes(quote(text))
 
     def to_audio(self, speech: Union[PhonemeList, str], filename=None) -> bytes:
-        """Renders a str or a `PhonemeList` to a wave byte object.
+        """Renders a str or a ``PhonemeList`` to a wave byte object.
         If a filename is specified, it saves the audio file to wave as well
         Throws a `InvalidVoiceParameters` if the voice isn't found"""
 
@@ -258,7 +259,7 @@ class Voice:
         return wav
 
     def say(self, speech: Union[PhonemeList, str]):
-        """Renders a string or a `PhonemeList` object to audio,
+        """Renders a string or a ``PhonemeList`` object to audio,
         then plays it using the PyAudio lib"""
         wav = self.to_audio(speech)
         try:
@@ -271,10 +272,11 @@ class Voice:
             self.player.play()
             self.player.close()
 
-    def listvoices(self):
+    @classmethod
+    def list_voice_ids(cls) -> Dict[str, List]:
         """Returns a dictionary listing available voice id's for each language"""
-        langs = {}  # type:Dict[List]
-        for file in os.listdir(self.mbrola_voices_folder):
+        langs: Dict[str, List] = {}
+        for file in os.listdir(cls.mbrola_voices_folder):
             match = re.match(r"([a-z]{2})([0-9])", file)
             if match is not None:
                 lang, voice_id = match.groups()
@@ -282,3 +284,10 @@ class Voice:
                     langs[lang] = []
                 langs[lang].append(voice_id)
         return langs
+
+    @classmethod
+    def get_voices_for_lang(cls, lang: str) -> List['Voice']:
+        """Get instances of all the available voices for a particular language"""
+        voice_ids = cls.list_voice_ids()
+        return [Voice(voice_id=voice_id, lang=lang)
+                for voice_id in voice_ids[lang]]

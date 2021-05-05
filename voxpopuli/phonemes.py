@@ -1,7 +1,6 @@
-
 """Objects and functions used for parsing and manipulating mbrola phonemes"""
-from typing import Tuple, List, Union, Iterable
 from collections import MutableSequence
+from typing import Tuple, List, Union, Iterable
 
 
 def pairwise(iterable):
@@ -11,8 +10,13 @@ def pairwise(iterable):
 
 
 class Phoneme:
+    """Stores the phonetic data for a single phoneme:
 
-    def __init__(self, name : str, duration : int, pitch_mods : List[Tuple[int, int]] = None):
+    - the name of the phoneme in SAMPA notation (depends on the language)
+    - its duration (in milliseconds)
+    - its pitch modifications (as a list of `(percentage, pitch)` tuples)"""
+
+    def __init__(self, name: str, duration: int, pitch_mods: List[Tuple[int, int]] = None):
         self.name = name
         self.duration = duration
         self.pitch_modifiers = pitch_mods if pitch_mods is not None else []
@@ -46,40 +50,49 @@ class PhonemeList(MutableSequence):
         elif isinstance(blocks, Iterable):
             self._pho_list = list(blocks)
         else:
-            raise ValueError("Expecting a list of blocks or a phonemes, got %s"
-                             % str(type(blocks)))
+            raise ValueError(f"Expecting a list of blocks or a phonemes, "
+                             f"got {str(type(blocks))}")
 
     @classmethod
     def from_pho_str(cls, pho_str_list: str):
-        return cls([Phoneme.from_str(pho_str) for pho_str in pho_str_list.split("\n") if pho_str.strip()])
+        """Build a ``PhonemeList`` from a string corresponding to a .pho file typically
+        produced by Espeak."""
+        return cls([Phoneme.from_str(pho_str)
+                    for pho_str in pho_str_list.split("\n") if pho_str.strip()])
 
     def __len__(self) -> int:
+        """Number of phonemes in ``PhonemeList``"""
         return len(self._pho_list)
 
     def __delitem__(self, index: int):
+        """Remove a phoneme at index i in ``PhonemeList``"""
         del self._pho_list[index]
 
     def insert(self, index, value: Phoneme):
+        """Insert a phoneme at index i in ``PhonemeList``"""
         assert isinstance(value, Phoneme)
         self._pho_list.insert(index, value)
 
     def append(self, value: Phoneme):
+        """Append a phoneme to ``PhonemeList``"""
         assert isinstance(value, Phoneme)
         self._pho_list.append(value)
 
     def __setitem__(self, index: int, value: Phoneme):
+        """Set phoneme in ``PhonemeList`` at index i"""
         assert isinstance(value, Phoneme)
         self._pho_list[index] = value
 
     def __getitem__(self, index: int) -> Phoneme:
+        """Get phoneme in ``PhonemeList``"""
         return self._pho_list[index]
 
     def __iter__(self) -> Iterable[Phoneme]:
+        """Iterate over ``PhonemeList``"""
         return iter(self._pho_list)
 
     def __add__(self, other: 'PhonemeList'):
-        """Adds two `BlockList` to one another. Tries to merge
-        the last block of the current list to the first of the other one."""
+        """Concatenate two ``PhonemeList``"""
         assert self.__class__ == other.__class__
         return PhonemeList(list(self._pho_list) + list(other._pho_list))
 
@@ -88,11 +101,15 @@ class PhonemeList(MutableSequence):
 
     @property
     def phonemes_str(self):
+        """Output the ``PhonemeList`` as a .pho compatible string."""
         return "".join([str(phoneme.name) for phoneme in self])
 
 
-class AbstractPhonemeGroup:
-    _all = set()
+class PhonemeGroupMeta(type):
+
+    @property
+    def all(cls):
+        return cls._all
 
     def __contains__(self, item):
         return item in self._all
@@ -100,11 +117,26 @@ class AbstractPhonemeGroup:
     def __iter__(self):
         return iter(self._all)
 
+
+class AbstractPhonemeGroup(metaclass=PhonemeGroupMeta):
+    _all = set()
+
+    @property
+    def all(self):
+        return self._all
+
+    def __contains__(self, item):
+        return item in self._all
+
+    def __iter__(self):
+        return iter(self._all)
+
+
 ## all these sets are made from information taken here: http://www.phon.ucl.ac.uk/home/sampa/
 ## It's the SAMPA (based on IPA) standard for writing phonemes in lots of langages
 
 
-class FrenchPhonemes:
+class FrenchPhonemes(AbstractPhonemeGroup):
     PLOSIVES = {"p", "b", "t", "d", "k", "g"}
     FRICATIVES = {'S', 'Z', 'f', 's', 'v', 'z', 'j'}
     NASAL_CONSONANTS = {'J', 'm', 'n', 'N'}
@@ -117,7 +149,7 @@ class FrenchPhonemes:
     _all = VOWELS | CONSONANTS
 
 
-class SpanishPhonemes:
+class SpanishPhonemes(AbstractPhonemeGroup):
     PLOSIVES = {"p", "b", "t", "d", "k", "g"}
     AFFRICATES = {'tS', 'jj'}
     FRICATIVES = {'f', 'B', 'T', 'D', 's', 'x', 'G'}
@@ -185,7 +217,3 @@ class ItalianPhonemes:
     VOWELS = {'i', 'e', 'E', 'a', 'O', 'o', 'u'}
     ACCENTS = {''}
     _all = VOWELS | CONSONANTS | ACCENTS
-
-
-
-

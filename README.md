@@ -9,14 +9,15 @@
 **A wrapper around Espeak and Mbrola.**
 
 This is a lightweight Python wrapper for Espeak and Mbrola, two co-dependent TTS tools. It enables you to 
-render sound by simply feeding it text and voice parameters. Phonems (the data transmitted by Espeak to
+render sound by simply feeding it text and voice parameters. Phonemes (the data transmitted by Espeak to
 mbrola) can also be manipulated using a mimalistic API.
 
 This is a short introduction, but you might want to look at the [readthedoc documentation](http://voxpopuli.readthedocs.io/en/latest/).
 
 ## Install
 
-### Linux (Ubuntu)
+**These instructions should work on any Debian/Ubuntu-derivative**
+
 Install with pip as:
 ```sh
 pip install voxpopuli
@@ -37,36 +38,11 @@ sudo apt install mbrola-*
 ```
 
 In case the voices you need aren't all in the ubuntu repo's, you can use this convenient little script
-that install voices diretcly from [Mbrola's voice repo](https://github.com/numediart/MBROLA-voices):
+that install voices directly from [Mbrola's voice repo](https://github.com/numediart/MBROLA-voices):
 ```sh
 # this installs all british english and french voices for instance
 sudo python3 -m voxpopuli.voice_install en fr
 ```
-
-### Windows installation
-
-**Note: this might be out oudated, since Mbrola's website has been replaced by github repositories. If you're willing to try and use voxpopuli 
-on windows and succeeded at setting it up, please do submit a pull request to update this documentation.**
-
-* `pip install voxpopuli`
-* Download and install espeak: http://sourceforge.net/projects/espeak/files/espeak/espeak-1.48/setup_espeak-1.48.04.exe
-* Download and install mbrola: https://tcts.fpms.ac.be/synthesis/mbrola/bin/pcwin/MbrolaTools35.exe
-* Download mbrola DOS binary: http://tcts.fpms.ac.be/synthesis/mbrola/bin/pcdos/mbr301d.zip
-* Unpack the .zip archive and put `mbrola.exe` into your mbrola folder.
-* Download voice files you need: https://tcts.fpms.ac.be/synthesis/mbrola/mbrcopybin.html
-* Unpack them into a single location (the default is `%USERPROFILE%\.mbrola`) so that each voice package is in its own folder
-* From each voice folder copy the main file (for example `fr1`) and put it in `\espeak-data\mbrola` folder in your epeak installation.
-
-**Important!**
-
-If your mbrola voices folder is not in the default location, don't forget to set its location after importing `Voice` module:
-
-```python
-from voxpopuli import Voice
-Voice.mbrola_voices_folder = 'D:\\mbrola-voices\\'
-```
-
-Repeat the above with `Voice.espeak_binary` and `Voice.mbrola_binary` if you installed them in non-default locations.
 
 ## Usage
 
