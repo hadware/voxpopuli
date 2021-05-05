@@ -145,6 +145,5 @@ Notes:
 
 ## What's left to do
 
- * A real sphinx documentation
  * Moar unit tests
  * Maybe some examples
