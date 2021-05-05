@@ -37,6 +37,12 @@ SAMPA Phoneme Sets
     :inherited-members:
     :exclude-members: __weakref__, __module__
 
+.. autoclass:: voxpopuli.AmericanEnglishPhonemes
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :exclude-members: __weakref__, __module__
+
 .. autoclass:: voxpopuli.SpanishPhonemes
     :members:
     :undoc-members:
@@ -44,6 +50,30 @@ SAMPA Phoneme Sets
     :exclude-members: __weakref__, __module__
 
 .. autoclass:: voxpopuli.GermanPhonemes
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :exclude-members: __weakref__, __module__
+
+.. autoclass:: voxpopuli.ItalianPhonemes
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :exclude-members: __weakref__, __module__
+
+.. autoclass:: voxpopuli.PortuguesePhonemes
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :exclude-members: __weakref__, __module__
+
+.. autoclass:: voxpopuli.GreekPhonemes
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :exclude-members: __weakref__, __module__
+
+.. autoclass:: voxpopuli.ArabicPhonemes
     :members:
     :undoc-members:
     :inherited-members:

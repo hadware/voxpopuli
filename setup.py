@@ -7,7 +7,7 @@ with open("README.md") as readme:
 
 setup(
     name='voxpopuli',
-    version='0.3.7',
+    version='0.3.8',
     description='A wrapper around Espeak and Mbrola, to do simple Text-To-Speech (TTS),'
                 ' with the possibility to tweak the phonemic form.',
     long_description=long_description,
@@ -22,6 +22,7 @@ setup(
         'Topic :: Multimedia :: Sound/Audio :: Speech',
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
+        'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',

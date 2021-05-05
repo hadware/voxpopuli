@@ -1,11 +1,7 @@
-from urllib import request
-from zipfile import ZipFile
-from io import BytesIO
-from os import makedirs
-import re
 import argparse
+from os import makedirs
 from pathlib import Path
-
+from urllib import request
 
 BASE_URL = "https://github.com/numediart/MBROLA-voices/raw/master/data/%s/%s"
 MBROLA_FOLDER = Path("/usr/share/mbrola/")

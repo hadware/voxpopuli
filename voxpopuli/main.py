@@ -1,4 +1,3 @@
-# coding=utf-8
 """A lightweight Python wrapper of espeak and mbrola"""
 import fnmatch
 import io

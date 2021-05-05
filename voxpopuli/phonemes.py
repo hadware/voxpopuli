@@ -109,24 +109,25 @@ class PhonemeGroupMeta(type):
 
     @property
     def all(cls):
-        return cls._all
+        return cls._all | cls.STRESSES
 
     def __contains__(self, item):
-        return item in self._all
+        return item in self.all
 
     def __iter__(self):
-        return iter(self._all)
+        return iter(self.all)
 
 
 class AbstractPhonemeGroup(metaclass=PhonemeGroupMeta):
+    STRESSES = {'"', ':', "%", "`", "'"}
     _all = set()
 
     @property
     def all(self):
-        return self._all
+        return self._all | self.STRESSES
 
     def __contains__(self, item):
-        return item in self._all
+        return item in self.all
 
     def __iter__(self):
         return iter(self._all)
@@ -161,6 +162,19 @@ class SpanishPhonemes(AbstractPhonemeGroup):
     _all = VOWELS | CONSONANTS | ACCENTS
 
 
+class PortuguesePhonemes(AbstractPhonemeGroup):
+    PLOSIVES = {"p", "b", "t", "d", "k", "g"}
+    FRICATIVES = {"f", "v", "s", "z", "S", "Z"}
+
+    NASALS = {"m", "n", "J"}
+
+    LIQUIDS = {"l", "L", "r", "R"}
+    CONSONANTS = PLOSIVES | FRICATIVES | NASALS | LIQUIDS
+    VOWELS = {"i", "e", "E", "a", "6", "O", "o", "u", "@", "i~", "e~",
+              "6~", "o~", "u~", "aw", "aj", "6~j~"}
+    _all = VOWELS | CONSONANTS
+
+
 class BritishEnglishPhonemes(AbstractPhonemeGroup):
     PLOSIVES = {'b', 'd', 'g', 'k', 'p', 't'}
     AFFRICATES = {'dZ', 'tS'}
@@ -177,6 +191,14 @@ class BritishEnglishPhonemes(AbstractPhonemeGroup):
     VOWELS = CHECKED | FREE | INDETERMINATE | CENTRAL
     ADDITIONALS = {"?", "x"}
     _all = VOWELS | CONSONANTS | ADDITIONALS
+
+
+class AmericanEnglishPhonemes(AbstractPhonemeGroup):
+    CONSONANTS = {"p", "b", "t", "d", "k", "g", "tS", "dZ", "f", "v", "T", "D", "s",
+                  "z", "S", "Z", "h", "m", "n", "N", "r", "l", "w", "j"}
+    VOWELS = {"I", "E", "{", "A", "V", "U", "i", "e", "u", "o", "O", "aI",
+              "OI", "aU", "3`", "@", "@`"}
+    _all = CONSONANTS | VOWELS
 
 
 class GermanPhonemes(AbstractPhonemeGroup):
@@ -217,3 +239,28 @@ class ItalianPhonemes:
     VOWELS = {'i', 'e', 'E', 'a', 'O', 'o', 'u'}
     ACCENTS = {''}
     _all = VOWELS | CONSONANTS | ACCENTS
+
+
+class GreekPhonemes(AbstractPhonemeGroup):
+    VOWELS = {"i", " e", " a", " o", " u"}
+    PLOSIVES = {"p", "b", "t", "d", "k", "g"}
+    AFFRICATES = {"ts", "dz"}
+    FRICATIVES = {"f", "v", "T", "D", "s", "z", "x", "G"}
+    NASALS = {"m", "n"}
+    LIQUIDS = {"l", "r"}
+    SEMIVOWEL = {"j"}
+    PALATALS = {"c", "gj", "C", "jj"}
+    CONSONANTS = PLOSIVES | AFFRICATES | FRICATIVES | NASALS | LIQUIDS | SEMIVOWEL | PALATALS
+    _all = CONSONANTS | VOWELS
+
+
+class ArabicPhonemes(AbstractPhonemeGroup):
+    PLOSIVES = {"b", "t", "d", "t`", "d`", "k", "g", "?", "q", "p"}
+    FRICATIVES = {"f", "v", "T", "D", "D`", "s", "z", "s`", "S", "Z", "x", "G", "X\\", "?`", "h"}
+    NASALS = {"m", "n"}
+    TRILL = {"r"}
+    LATERAL = {"l", "l`"}
+    SEMIVOWELS = {"w", "j"}
+    CONSONANTS = PLOSIVES | FRICATIVES | NASALS | TRILL | LATERAL | SEMIVOWELS
+    VOWELS = {"i", "a", "u", "i:", "a:", "u:"}
+    _all = VOWELS | CONSONANTS
