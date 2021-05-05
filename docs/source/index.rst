@@ -19,7 +19,7 @@ Here's the small yet infinitely useful documentation for voxpopuli. Two paths la
     :caption: Table of Content
 
     install
-    espeak_mbrola
     intro
+    espeak_mbrola
     api
 

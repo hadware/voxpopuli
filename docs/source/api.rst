@@ -1,5 +1,5 @@
-Voxpopuli API reference
-=======================
+API reference
+=============
 
 
 Synthesis Classes
