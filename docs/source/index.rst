@@ -8,10 +8,10 @@ The Voxpopuli Documentation
 
 Here's the small yet infinitely useful documentation for voxpopuli. Two paths lay ahead of you:
 
- * If you just want to do text-to-speech (TTS), go over the installation tutorial and jump straight to the intro.
- * If you want to do a little bit more with voxpopuli (e.g., manipulate phonemes as we call them), you might want to
-    look at our introduction to Espeak and Mbrola. It's fairly easy to understand, but it will prevent some
-    headscratching and useless google searches.
+* If you just want to do text-to-speech (TTS), go over the installation tutorial and jump straight to the :ref:`tutorial` .
+* If you want to do a little bit more with voxpopuli (e.g., manipulate phonemes as they're called), you might want to
+  look at :ref:`mbrola-espeak`. It's fairly easy to understand, but it will prevent some
+  headscratching and useless google searches.
 
 
 .. toctree::

@@ -31,7 +31,7 @@ of the text that is being fed. This is the part of espeak that is used in Voxpop
 There are several notations for phonetics, the most commonly used in the
 linguistic/phonetic world is the International Phonetic Alphabet (IPA).
 
-.. code-block::
+.. code-block:: none
 
     'hello' ->  /həˈləʊ/
 
@@ -44,7 +44,7 @@ was developed: SAMPA. This is that alphabet that is used in our case.
 Indeed, there is specific set of SAMPA phonemes (all corresponding to an ASCII
 string of 1 to 3 characters) for each language it supports.
 
-.. code-block::
+.. code-block:: none
 
     'happy' -> "h{pi
 
@@ -58,7 +58,7 @@ are unique to each languages it supports.
 
 In the end, this is what espeak outputs for the French sentence "c'est pas faux":
 
-.. code-block::
+.. code-block:: none
 
     # This format is usually stored in .pho files
     s	107

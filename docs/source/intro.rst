@@ -1,6 +1,8 @@
 An introduction to Voxpopuli
 ============================
 
+.. _tutorial:
+
 Tutorial
 ########
 
