@@ -1,7 +1,9 @@
 import argparse
+import asyncio
 from os import makedirs
 from pathlib import Path
-from urllib import request
+
+import aiohttp
 
 BASE_URL = "https://github.com/numediart/MBROLA-voices/raw/master/data/%s/%s"
 MBROLA_FOLDER = Path("/usr/share/mbrola/")
@@ -53,19 +55,37 @@ def create_folder_and_extract(voice_name, zfile):
     zfile.extract(voice_name, MBROLA_FOLDER + voice_name + "/")
 
 
-def install_voices(lang="fr"):
+async def main():
+    args = argparser.parse_args()
+    if args.all:
+        languages = list(LANG_FILES.keys())
+    else:
+        languages = args.languages
+
+    async with aiohttp.ClientSession() as session:
+        tasks = []
+        for lang in languages:
+            for voice_id in LANG_FILES[lang]:
+                tasks.append(asyncio.ensure_future(install_voice(session, lang, voice_id)))
+
+        return await asyncio.gather(*tasks)
+
+async def install_voice(session, lang, voice_id):
     """Automatically downloads and extracts all the voices for one language in the /usr/share/mbrola folder"""
-    for voice_id in LANG_FILES[lang]:
-        voice_name = lang + str(voice_id)
-        print("Downloading MBROLA language file for voice %s" % voice_name)
-        voice_data = request.urlopen(BASE_URL % (voice_name, voice_name)).read()
-        # creating folder for the language file
-        print("Writing data for language %s" % voice_name)
-        voice_folder = MBROLA_FOLDER / Path(voice_name)
-        voice_folder.mkdir(parents=True, exist_ok=True)
-        lang_path = voice_folder / Path(voice_name)
-        with open(str(lang_path), "wb") as lang_file:
-            lang_file.write(voice_data)
+    print(f"Installing voice {lang} {voice_id}")
+    voice_name = lang + str(voice_id)
+
+    print("Downloading MBROLA language file for voice %s" % voice_name)
+    async with session.get(BASE_URL % (voice_name, voice_name)) as resp:
+        voice_data = await resp.read()
+
+    # creating folder for the language file
+    print("Writing data for language %s" % voice_name)
+    voice_folder = MBROLA_FOLDER / Path(voice_name)
+    voice_folder.mkdir(parents=True, exist_ok=True)
+    lang_path = voice_folder / Path(voice_name)
+    with open(str(lang_path), "wb") as lang_file:
+        lang_file.write(voice_data)
 
 
 argparser = argparse.ArgumentParser()
@@ -73,11 +93,4 @@ argparser.add_argument("languages", nargs="+", choices=list(LANG_FILES.keys()), 
 argparser.add_argument("--all", action="store_true", help="Download all language files")
 
 if __name__ == "__main__":
-    args = argparser.parse_args()
-    if args.all:
-        languages = list(LANG_FILES.keys())
-    else:
-        languages = args.languages
-    for lang in languages:
-        print("Installing voices for languages %s" % lang)
-        install_voices(lang)
+    asyncio.run(main())
