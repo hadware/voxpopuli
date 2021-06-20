@@ -77,5 +77,3 @@ html_theme = "sphinx_rtd_theme"
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'voxpopulidoc'
-
-

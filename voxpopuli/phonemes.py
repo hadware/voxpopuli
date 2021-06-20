@@ -1,9 +1,11 @@
 """Objects and functions used for parsing and manipulating mbrola phonemes"""
 from collections import MutableSequence
-from typing import Tuple, List, Union, Iterable
+from inspect import cleandoc
+from typing import Iterable, Iterator, List, Optional, Tuple, TypeVar, Union
 
 
-def pairwise(iterable):
+P = TypeVar("P")
+def pairwise(iterable: Iterable[P]) -> Iterable[Tuple[P, P]]:
     "s -> (s0, s1), (s2, s3), (s4, s5), ..."
     a = iter(iterable)
     return zip(a, a)
@@ -16,23 +18,20 @@ class Phoneme:
     - its duration (in milliseconds)
     - its pitch modifications (as a list of `(percentage, pitch)` tuples)"""
 
-    def __init__(self, name: str, duration: int, pitch_mods: List[Tuple[int, int]] = None):
+    def __init__(self, name: str, duration: int, pitch_mods: Optional[List[Tuple[int, int]]] = None):
         self.name = name
         self.duration = duration
-        self.pitch_modifiers = pitch_mods if pitch_mods is not None else []
+        self.pitch_modifiers = pitch_mods or []
 
     def __str__(self):
-        return self.name + "\t" \
-               + str(self.duration) + "\t" \
-               + " ".join([str(percent) + " " + str(pitch) for percent, pitch in self.pitch_modifiers])
+        pitch_mods = " ".join(f"{percent} {pitch}" for percent, pitch in self.pitch_modifiers)
+        return cleandoc(f"{self.name}\t{self.duration}\t{pitch_mods}")
 
     @classmethod
-    def from_str(cls, pho_str):
+    def from_str(cls, pho_str: str):
         """Instanciates a phoneme from a line of espeak's phoneme output."""
-        split_pho = pho_str.split()
-        name = split_pho.pop(0)
-        duration = int(split_pho.pop(0))
-        return cls(name, duration, [(int(percent), int(pitch)) for percent, pitch in pairwise(split_pho)])
+        name, duration, *split_pho = pho_str.split()
+        return cls(name, int(duration), [(int(percent), int(pitch)) for percent, pitch in pairwise(split_pho)])
 
     def set_from_pitches_list(self, pitch_list: List[int]):
         """Set pitches variations from a list of frequencies. The pitch variation are set to be
@@ -87,11 +86,11 @@ class PhonemeList(MutableSequence):
         """Get phoneme in ``PhonemeList``"""
         return self._pho_list[index]
 
-    def __iter__(self) -> Iterable[Phoneme]:
+    def __iter__(self) -> Iterator[Phoneme]:
         """Iterate over ``PhonemeList``"""
         return iter(self._pho_list)
 
-    def __add__(self, other: 'PhonemeList'):
+    def __add__(self, other: 'PhonemeList') -> 'PhonemeList':
         """Concatenate two ``PhonemeList``"""
         assert self.__class__ == other.__class__
         return PhonemeList(list(self._pho_list) + list(other._pho_list))
@@ -100,25 +99,12 @@ class PhonemeList(MutableSequence):
         return "\n".join([str(phoneme) for phoneme in self])
 
     @property
-    def phonemes_str(self):
+    def phonemes_str(self) -> str:
         """Output the ``PhonemeList`` as a .pho compatible string."""
         return "".join([str(phoneme.name) for phoneme in self])
 
 
-class PhonemeGroupMeta(type):
-
-    @property
-    def all(cls):
-        return cls._all | cls.STRESSES
-
-    def __contains__(self, item):
-        return item in self.all
-
-    def __iter__(self):
-        return iter(self.all)
-
-
-class AbstractPhonemeGroup(metaclass=PhonemeGroupMeta):
+class AbstractPhonemeGroup:
     STRESSES = {'"', ':', "%", "`", "'"}
     _all = set()
 
@@ -218,7 +204,7 @@ class GermanPhonemes(AbstractPhonemeGroup):
     _all = VOWELS | SCHWA | CENTRING_DIPHTONGS | CONSONANTS
 
 
-class ItalianPhonemes:
+class ItalianPhonemes(AbstractPhonemeGroup):
     SINGLE_PLOSIVES = {'p', 'b', 't', 'd', 'k', 'g'}
     GEMINATE_PLOSIVES = {'pp', 'bb', 'tt', 'dd', 'kk', 'gg'}
     PLOSIVES = SINGLE_PLOSIVES | GEMINATE_PLOSIVES
