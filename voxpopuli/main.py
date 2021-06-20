@@ -5,17 +5,16 @@ import logging
 import os
 import re
 import wave
+from asyncio.subprocess import create_subprocess_shell as run, PIPE
 from pathlib import Path
 from shlex import quote
 from shutil import which
 from struct import pack
-from subprocess import PIPE, run
 from sys import platform
-from typing import List, Dict
-from typing import Union
+from typing import Dict, List, Union
 
-from .phonemes import BritishEnglishPhonemes, GermanPhonemes, FrenchPhonemes, \
-    SpanishPhonemes, ItalianPhonemes, PhonemeList
+from .phonemes import (BritishEnglishPhonemes, FrenchPhonemes, GermanPhonemes,
+                       ItalianPhonemes, PhonemeList, SpanishPhonemes)
 
 
 class AudioPlayer:
@@ -157,7 +156,7 @@ class Voice:
         return wav[:4] + pack('<I', len(wav) - 8) + wav[8:40] + pack('<I', len(
             wav) - 44) + wav[44:]
 
-    def _str_to_phonemes(self, text: str) -> PhonemeList:
+    async def _str_to_phonemes(self, text: str) -> PhonemeList:
         espeak_voice_name_template = ('mb/mb-%s%d'
                                       if platform in ('linux', 'darwin')
                                       else 'mb-%s%d')
@@ -186,14 +185,18 @@ class Voice:
         # Since MALLOC_CHECK_ has to be used before anything else,
         # we need to compile the full command as a single
         # string and we need to use `shell=True`.
-        return PhonemeList.from_pho_str(
-            run(' '.join(phoneme_synth_args), shell=True, stdout=PIPE,
-                stderr=PIPE)
-                .stdout
-                .decode("utf-8")
-                .strip())
+        process = await run(' '.join(phoneme_synth_args), stdout=PIPE, stderr=PIPE)
+        try:
+            stdout = (await process.communicate())[0].decode("utf8").strip()
+            return PhonemeList.from_pho_str(stdout)
+        finally:
+            try:
+                process.kill()
+                await process.communicate()
+            except ProcessLookupError:
+                pass
 
-    def _phonemes_to_audio(self, phonemes: PhonemeList) -> bytes:
+    async def _phonemes_to_audio(self, phonemes: PhonemeList) -> bytes:
         voice_path_template = ('%s/%s%d/%s%d'
                                if platform in ("linux", "darwin")
                                else '%s\\%s%d\\%s%d')
@@ -215,22 +218,30 @@ class Voice:
 
         logging.debug(
             "Running mbrola command %s" % " ".join(audio_synth_string))
-        return self._wav_format(
-            run(" ".join(audio_synth_string), shell=True, stdout=PIPE,
-                stderr=PIPE, input=str(phonemes).encode("utf-8")).stdout)
 
-    def _str_to_audio(self, text: str) -> bytes:
+        process = await run(" ".join(audio_synth_string), stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        try:
+            stdout, _ = await process.communicate(input=str(phonemes).encode('utf-8'))
+            return self._wav_format(stdout)
+        finally:
+            try:
+                process.kill()
+                await process.communicate()
+            except ProcessLookupError:
+                pass
 
-        phonemes_list = self._str_to_phonemes(text)
-        audio = self._phonemes_to_audio(phonemes_list)
+
+    async def _str_to_audio(self, text: str) -> bytes:
+        phonemes_list = await self._str_to_phonemes(text)
+        audio = await self._phonemes_to_audio(phonemes_list)
 
         return audio
 
-    def to_phonemes(self, text: str) -> PhonemeList:
+    async def to_phonemes(self, text: str) -> PhonemeList:
         """Renders a str to a ```PhonemeList`` object."""
-        return self._str_to_phonemes(quote(text))
+        return await self._str_to_phonemes(quote(text))
 
-    def to_audio(self, speech: Union[PhonemeList, str], filename=None) -> bytes:
+    async def to_audio(self, speech: Union[PhonemeList, str], filename=None) -> bytes:
         """Renders a str or a ``PhonemeList`` to a wave byte object.
         If a filename is specified, it saves the audio file to wave as well
         Throws a `InvalidVoiceParameters` if the voice isn't found"""
@@ -242,9 +253,9 @@ class Voice:
                                "the official mbrola repository on github")
 
         if isinstance(speech, str):
-            wav = self._str_to_audio(quote(speech))
+            wav = await self._str_to_audio(quote(speech))
         elif isinstance(speech, PhonemeList):
-            wav = self._phonemes_to_audio(speech)
+            wav = await self._phonemes_to_audio(speech)
 
         if filename is not None:
             with open(filename, "wb") as wavfile:
@@ -252,10 +263,10 @@ class Voice:
 
         return wav
 
-    def say(self, speech: Union[PhonemeList, str]):
+    async def say(self, speech: Union[PhonemeList, str]):
         """Renders a string or a ``PhonemeList`` object to audio,
         then plays it using the PyAudio lib"""
-        wav = self.to_audio(speech)
+        wav = await self.to_audio(speech)
         try:
             self.player.set_file(io.BytesIO(wav))
         except ImportError:
