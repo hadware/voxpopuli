@@ -1,5 +1,6 @@
 """A lightweight Python wrapper of espeak and mbrola"""
 import fnmatch
+from inspect import cleandoc
 import io
 import logging
 import os
@@ -11,12 +12,13 @@ from shutil import which
 from struct import pack
 from subprocess import PIPE, run
 from sys import platform
-from typing import List, Dict
-from typing import Union
+from typing import Dict, IO, List, Optional, Type, Union
 
-from .phonemes import BritishEnglishPhonemes, GermanPhonemes, FrenchPhonemes, \
-    SpanishPhonemes, ItalianPhonemes, PhonemeList
+from .phonemes import (AbstractPhonemeGroup, BritishEnglishPhonemes, FrenchPhonemes, GermanPhonemes,
+                       ItalianPhonemes, PhonemeList, SpanishPhonemes)
 
+def _is_unix() -> bool:
+    return platform in ('linux', 'darwin')
 
 class AudioPlayer:
     """A sound player"""
@@ -28,7 +30,7 @@ class AudioPlayer:
         import pyaudio
         self.p = pyaudio.PyAudio()
 
-    def set_file(self, file):
+    def set_file(self, file: Union[str, IO[bytes]]):
         if self.stream is not None:
             self.stream.close()
 
@@ -54,18 +56,20 @@ class AudioPlayer:
         self.p.terminate()
 
 
-lg_code_to_phoneme = {"fr": FrenchPhonemes,
-                      "en": BritishEnglishPhonemes,
-                      "es": SpanishPhonemes,
-                      "de": GermanPhonemes,
-                      "it": ItalianPhonemes}
+lg_code_to_phoneme: Dict[str, Type[AbstractPhonemeGroup]] = {
+    "fr": FrenchPhonemes,
+    "en": BritishEnglishPhonemes,
+    "es": SpanishPhonemes,
+    "de": GermanPhonemes,
+    "it": ItalianPhonemes
+}
 
 
 class Voice:
     class InvalidVoiceParameters(Exception):
         pass
 
-    if platform in ('linux', 'darwin'):
+    if _is_unix():
         espeak_binary = 'espeak'
         mbrola_binary = 'mbrola'
         mbrola_voices_folder = "/usr/share/mbrola"
@@ -88,7 +92,7 @@ class Voice:
                        'us3': 3.48104, 'es1': 3.26885, 'es2': 1.84053}
 
     def __init__(self, speed: int = 160, pitch: int = 50, lang: str = "fr",
-                 voice_id: int = None, volume: float = None):
+                 voice_id: Optional[int] = None, volume: Optional[float] = None):
         """All parameters are optional, but it's still advised that you pick
         a language, else it **will** default to French, which is a
         default to the most beautiful language on earth.
@@ -105,20 +109,20 @@ class Voice:
         # if no voice ID is specified, just defaults to one it can find
         voice_id = (voice_id if voice_id is not None
                     else self._find_existing_voiceid(lang))
-        voice_name = lang + str(voice_id)
+        self.voice_name = lang + str(voice_id)
         if (Path(self.mbrola_voices_folder)
-            / Path(voice_name)
-            / Path(voice_name)).is_file():
+            / Path(self.voice_name)
+            / Path(self.voice_name)).is_file():
             self.lang = lang
             self.voice_id = voice_id
         else:
-            raise self.InvalidVoiceParameters(
-                "Voice %s not found. Check language and voice id, or install "
-                "by running 'sudo apt install mbrola-%s'. On Windows download "
-                "voices from https://github.com/numediart/MBROLA-voices"
-                % (voice_name, voice_name))
+            raise self.InvalidVoiceParameters(cleandoc("""
+                Voice {v} not found. Check language and voice id, or install\
+                by running 'sudo apt install mbrola-{v}'. On Windows download\
+                voices from https://github.com/numediart/MBROLA-voices
+            """.format(v=self.voice_name)))
 
-        self.volume = volume or self.volumes_presets.get(voice_name, 1)
+        self.volume = volume or self.volumes_presets.get(self.voice_name, 1)
 
         if lang != 'fr':
             self.sex = self.voice_id
@@ -138,7 +142,7 @@ class Voice:
         # default to 1 if no voice are found (although it'll probably fail then)
         return 1
 
-    def _mbrola_exists(self):
+    def _mbrola_exists(self) -> bool:
         return which(self.mbrola_binary) is not None
 
     @property
@@ -158,10 +162,8 @@ class Voice:
             wav) - 44) + wav[44:]
 
     def _str_to_phonemes(self, text: str) -> PhonemeList:
-        espeak_voice_name_template = ('mb/mb-%s%d'
-                                      if platform in ('linux', 'darwin')
-                                      else 'mb-%s%d')
-        voice_filename = espeak_voice_name_template % (self.lang, self.sex)
+        voice_prefix = 'mb/' if _is_unix() else ''
+        voice_filename = f'{voice_prefix}mb-{self.lang}{self.sex}'
 
         # Detailed explanation of options:
         # http://espeak.sourceforge.net/commands.html
@@ -172,16 +174,16 @@ class Voice:
             '--pho',  # outputs mbrola phoneme data
             '-q',  # quiet mode
             '-v', voice_filename,
-            '%s' % text]
+            str(text)
+        ]
 
         # Linux-specific memory management setting
         # Tells Clib to ignore allocations problems (which happen but doesn't
         # compromise espeak's outputs)
-        if platform in ('linux', 'darwin'):
+        if _is_unix():
             phoneme_synth_args.insert(0, 'MALLOC_CHECK_=0')
 
-        logging.debug("Running espeak command %s"
-                      % " ".join(phoneme_synth_args))
+        logging.debug(f"Running espeak command {' '.join(phoneme_synth_args)}")
 
         # Since MALLOC_CHECK_ has to be used before anything else,
         # we need to compile the full command as a single
@@ -194,33 +196,28 @@ class Voice:
                 .strip())
 
     def _phonemes_to_audio(self, phonemes: PhonemeList) -> bytes:
-        voice_path_template = ('%s/%s%d/%s%d'
-                               if platform in ("linux", "darwin")
-                               else '%s\\%s%d\\%s%d')
-        voice_phonemic_db = (voice_path_template
-                             % (self.mbrola_voices_folder, self.lang,
-                                self.voice_id, self.lang, self.voice_id))
+        seperator = "/" if _is_unix() else "\\"
+        t_path = (self.mbrola_voices_folder, self.voice_name, self.voice_name)
 
         audio_synth_string = [
             self.mbrola_binary,
             '-v', str(self.volume),
             '-e',  # ignores fatal errors on unknown diphone
-            voice_phonemic_db,
+            seperator.join(t_path),
             '-',  # command or .pho file; `-` instead of a file means stdin
             '-.wav'  # output file; `-` instead of a file means stdout
         ]
 
-        if platform in ('linux', 'darwin'):
+        if _is_unix():
             audio_synth_string.insert(0, 'MALLOC_CHECK_=0')
 
-        logging.debug(
-            "Running mbrola command %s" % " ".join(audio_synth_string))
+        logging.debug(f"Running mbrola command {' '.join(audio_synth_string)}")
+
         return self._wav_format(
             run(" ".join(audio_synth_string), shell=True, stdout=PIPE,
                 stderr=PIPE, input=str(phonemes).encode("utf-8")).stdout)
 
     def _str_to_audio(self, text: str) -> bytes:
-
         phonemes_list = self._str_to_phonemes(text)
         audio = self._phonemes_to_audio(phonemes_list)
 
@@ -230,16 +227,17 @@ class Voice:
         """Renders a str to a ```PhonemeList`` object."""
         return self._str_to_phonemes(quote(text))
 
-    def to_audio(self, speech: Union[PhonemeList, str], filename=None) -> bytes:
+    def to_audio(self, speech: Union[str, PhonemeList], filename=None) -> bytes:
         """Renders a str or a ``PhonemeList`` to a wave byte object.
         If a filename is specified, it saves the audio file to wave as well
         Throws a `InvalidVoiceParameters` if the voice isn't found"""
 
         if not self._mbrola_exists():
-            raise RuntimeError("Can't synthesize sound: mbrola executable is "
-                               "not present. "
-                               "Install using apt get install mbrola or from"
-                               "the official mbrola repository on github")
+            raise RuntimeError(cleandoc("""
+                Can't synthesize sound: mbrola executable is not present.
+                Install using apt get install mbrola or from the official\
+                mbrola repository on github
+            """))
 
         if isinstance(speech, str):
             wav = self._str_to_audio(quote(speech))
@@ -252,7 +250,7 @@ class Voice:
 
         return wav
 
-    def say(self, speech: Union[PhonemeList, str]):
+    def say(self, speech: Union[PhonemeList, str]) -> None:
         """Renders a string or a ``PhonemeList`` object to audio,
         then plays it using the PyAudio lib"""
         wav = self.to_audio(speech)

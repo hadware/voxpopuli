@@ -1,9 +1,10 @@
 import argparse
 from os import makedirs
 from pathlib import Path
+from typing import List
 from urllib import request
 
-BASE_URL = "https://github.com/numediart/MBROLA-voices/raw/master/data/%s/%s"
+BASE_URL = "https://github.com/numediart/MBROLA-voices/raw/master/data/{vn}/{vn}"
 MBROLA_FOLDER = Path("/usr/share/mbrola/")
 
 LANG_FILES = {'cn': [1],
@@ -44,27 +45,21 @@ LANG_FILES = {'cn': [1],
               'ic': [1],
               'pl': [1]}
 
-
-def create_folder_and_extract(voice_name, zfile):
-    try:
-        makedirs(MBROLA_FOLDER + voice_name + "/")
-    except FileExistsError:
-        pass
-    zfile.extract(voice_name, MBROLA_FOLDER + voice_name + "/")
-
-
-def install_voices(lang="fr"):
+def install_voices(lang: str = "fr") -> None:
     """Automatically downloads and extracts all the voices for one language in the /usr/share/mbrola folder"""
     for voice_id in LANG_FILES[lang]:
-        voice_name = lang + str(voice_id)
-        print("Downloading MBROLA language file for voice %s" % voice_name)
-        voice_data = request.urlopen(BASE_URL % (voice_name, voice_name)).read()
-        # creating folder for the language file
+        voice_name = f"{lang}{voice_id}"
+
+        print(f"Downloading MBROLA language file for voice {voice_name}")
+        voice_data = request.urlopen(BASE_URL.format(vn=voice_name)).read()
+
+        # Creating folder for the language file
         print("Writing data for language %s" % voice_name)
         voice_folder = MBROLA_FOLDER / Path(voice_name)
         voice_folder.mkdir(parents=True, exist_ok=True)
         lang_path = voice_folder / Path(voice_name)
-        with open(str(lang_path), "wb") as lang_file:
+
+        with open(lang_path, "wb") as lang_file:
             lang_file.write(voice_data)
 
 
@@ -77,7 +72,8 @@ if __name__ == "__main__":
     if args.all:
         languages = list(LANG_FILES.keys())
     else:
-        languages = args.languages
+        languages: List[str] = args.languages
+
     for lang in languages:
-        print("Installing voices for languages %s" % lang)
+        print(f"Installing voices for languages {lang}")
         install_voices(lang)
