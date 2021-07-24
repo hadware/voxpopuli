@@ -23,17 +23,19 @@ from .phonemes import (AbstractPhonemeGroup, BritishEnglishPhonemes,
 def _is_unix() -> bool:
     return platform in ('linux', 'darwin')
 
+File = Union[str, IO[bytes]]
 class AudioPlayer:
     """A sound player"""
     chunk = 1024
 
-    def __init__(self):
+    def __init__(self, file: File):
         """ Init audio stream """
-        self.wf, self.stream = None, None
         import pyaudio
-        self.p = pyaudio.PyAudio()
 
-    def set_file(self, file: Union[str, IO[bytes]]):
+        self.p = pyaudio.PyAudio()
+        self.set_file(file)
+
+    def set_file(self, file: File):
         if self.stream is not None:
             self.stream.close()
 
@@ -113,18 +115,19 @@ class Voice:
         voice_id = (voice_id if voice_id is not None
                     else self._find_existing_voiceid(lang))
         self.voice_name = lang + str(voice_id)
-        if (Path(self.mbrola_voices_folder)
+        if not (
+            Path(self.mbrola_voices_folder)
             / Path(self.voice_name)
-            / Path(self.voice_name)).is_file():
-            self.lang = lang
-            self.voice_id = voice_id
-        else:
+            / Path(self.voice_name)
+        ).is_file():
             raise self.InvalidVoiceParameters(cleandoc("""
                 Voice {v} not found. Check language and voice id, or install\
                 by running 'sudo apt install mbrola-{v}'. On Windows download\
                 voices from https://github.com/numediart/MBROLA-voices
             """.format(v=self.voice_name)))
 
+        self.lang = lang
+        self.voice_id = voice_id
         self.volume = volume or self.volumes_presets.get(self.voice_name, 1)
 
         if lang != 'fr':
@@ -135,7 +138,8 @@ class Voice:
             self.phonemes = lg_code_to_phoneme[lang]
         except KeyError:
             self.phonemes = None
-        self._player = None
+
+        self.player = None
 
     def _find_existing_voiceid(self, lang: str):
         """Finds any possible voice id for a given language"""
@@ -147,12 +151,6 @@ class Voice:
 
     def _mbrola_exists(self) -> bool:
         return which(self.mbrola_binary) is not None
-
-    @property
-    def player(self):
-        if self._player is None:
-            self._player = AudioPlayer()
-        return self._player
 
     def _wav_format(self, wav: bytes):
         """Reformats the wav returned by mbrola, which doesn't have the
@@ -270,7 +268,11 @@ class Voice:
         then plays it using the PyAudio lib"""
         wav = await self.to_audio(speech)
         try:
-            self.player.set_file(io.BytesIO(wav))
+            wav_file = io.BytesIO(wav)
+            if self.player is None:
+                self.player = AudioPlayer(wav_file)
+            else:
+                self.player.set_file(wav_file)
         except ImportError:
             raise ImportError(
                 "You must install the pyaudio pip package to be able to "

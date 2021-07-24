@@ -50,14 +50,17 @@ class PhonemeList(MutableSequence):
             self._pho_list = list(blocks)
         else:
             raise ValueError(f"Expecting a list of blocks or a phonemes, "
-                             f"got {str(type(blocks))}")
+                             f"got {type(blocks)}")
 
     @classmethod
     def from_pho_str(cls, pho_str_list: str):
         """Build a ``PhonemeList`` from a string corresponding to a .pho file typically
         produced by Espeak."""
-        return cls([Phoneme.from_str(pho_str)
-                    for pho_str in pho_str_list.split("\n") if pho_str.strip()])
+        return cls([
+            Phoneme.from_str(pho_str)
+            for pho_str in pho_str_list.split("\n")
+            if pho_str.strip()
+        ])
 
     def __len__(self) -> int:
         """Number of phonemes in ``PhonemeList``"""
@@ -96,12 +99,12 @@ class PhonemeList(MutableSequence):
         return PhonemeList(list(self._pho_list) + list(other._pho_list))
 
     def __str__(self):
-        return "\n".join([str(phoneme) for phoneme in self])
+        return "\n".join(str(phoneme) for phoneme in self)
 
     @property
     def phonemes_str(self) -> str:
         """Output the ``PhonemeList`` as a .pho compatible string."""
-        return "".join([str(phoneme.name) for phoneme in self])
+        return "".join(str(phoneme.name) for phoneme in self)
 
 
 class AbstractPhonemeGroup:

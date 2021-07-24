@@ -31,7 +31,8 @@ setup(
     ],
     keywords='tts speech phonemes audio',
     packages=find_packages(),
-    install_requires=[],
+    install_requires=["aiofile", "aiohttp"],
     include_package_data=True,
     test_suite='nose.collector',
-    tests_require=['nose'])
+    tests_require=['nose']
+)
