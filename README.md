@@ -67,7 +67,7 @@ If you wish to hear how it sounds right away, you'll have to make sure you insta
 voice.say("Salut c'est cool")
 ```
 
-Ou can also, say, use scipy to get the pcm audio as a `ndarray`:
+You can also, say, use scipy to get the pcm audio as a `ndarray`:
 
 ```python
 import scipy.io.wavfile import read, write
