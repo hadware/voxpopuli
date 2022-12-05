@@ -7,7 +7,7 @@ with open("README.md") as readme:
 
 setup(
     name='voxpopuli',
-    version='0.3.8',
+    version='0.3.9',
     description='A wrapper around Espeak and Mbrola, to do simple Text-To-Speech (TTS),'
                 ' with the possibility to tweak the phonemic form.',
     long_description=long_description,
@@ -28,6 +28,8 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
     ],
     keywords='tts speech phonemes audio',
     packages=find_packages(),

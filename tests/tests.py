@@ -7,7 +7,7 @@ from voxpopuli.phonemes import PhonemeList
 logging.getLogger().setLevel(logging.DEBUG)
 
 
-class TestStrToPhonems(unittest.TestCase):
+class TestStrToPhonemes(unittest.TestCase):
 
     def test_french(self):
         voice = Voice(lang="fr")
@@ -42,7 +42,7 @@ class TestStrToAudio(unittest.TestCase):
             self.assertEqual(wavfile.read(), wav_byte)
 
 
-class TestPhonemsToAudio(unittest.TestCase):
+class TestPhonemesToAudio(unittest.TestCase):
     data_folder = path.join(path.dirname(path.realpath(__file__)), "data")
 
     def test_fr(self):

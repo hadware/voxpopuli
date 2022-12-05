@@ -1,5 +1,5 @@
 """Objects and functions used for parsing and manipulating mbrola phonemes"""
-from collections import MutableSequence
+from collections.abc import MutableSequence
 from typing import Tuple, List, Union, Iterable
 
 
