@@ -118,12 +118,7 @@ class Voice:
                 "voices from https://github.com/numediart/MBROLA-voices"
                 % (voice_name, voice_name))
 
-        if volume is not None:
-            self.volume = volume
-        else:
-            if voice_name in self.volumes_presets:
-                self.volume = self.volumes_presets[voice_name]
-            self.volume = 1
+        self.volume = volume or self.volumes_presets.get(voice_name, 1)
 
         if lang != 'fr':
             self.sex = self.voice_id
