@@ -18,7 +18,7 @@ a text. The rendered audio is returned in a .wav bytes object:
     voice = Voice(lang="fr")
     wav = voice.to_audio("salut c'est cool")
 
-Evaluating `type(wav)` whould return `bytes`. You can then save the wav using the `wb`
+Evaluating `type(wav)` would return `bytes`. You can then save the wav using the `wb`
 file option
 
 .. code-block:: python
@@ -27,14 +27,14 @@ file option
         wavfile.write(wav)
 
 
-If you wish to hear how it sounds right away, you'll have to make sure you installed pyaudio *via* pip, and then do:
+If you wish to hear how it sounds right away, you'll have to make sure you installed pyaudio *via* pip, and then use this command:
 
 .. code-block:: python
 
     voice.say("Salut c'est cool")
 
 
-Ou can also, say, use scipy to get the pcm audio as a `ndarray`:
+You can also, say, use scipy to get the pcm audio as a `ndarray`:
 
 .. code-block:: python
 
@@ -54,7 +54,7 @@ You can set some parameters you can set on the voice, such as language or pitch
 .. code-block:: python
 
     from voxpopuli import Voice
-    # really slow fice with high pitch
+    # really slow voice with high pitch
     voice = Voice(lang="us", pitch=99, speed=40, voice_id=2)
     voice.say("I'm high on helium")
 
@@ -66,7 +66,7 @@ The exhaustive list of parameters is:
 - ``voice_id``, an integer, used to select the voice id for a language. If not specified,
   the first voice id found for a given language is used.
 - ``pitch``, an integer between 0 and 99 (included)
-- ``speed``, an integer, in the words per minute. Default and regular speed
+- ``speed``, an integer, representing words per minute. Default and regular speed
   is 160 words-per-minute.
 - ``volume``, float ratio applied to the output sample. Some languages have presets
   that our best specialists tested. Otherwise, defaults to 1.
