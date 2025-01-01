@@ -22,7 +22,7 @@ Espeak
 ------
 
 Espeak is a pretty old program that used to be one of the only good  open source
-option for basic text-to-speech synthesis (TTS). The synthesis quality is somewhat
+options for basic text-to-speech synthesis (TTS). The synthesis quality is somewhat
 rudimentary (at least compared to modern deep-learning based solutions, or even
 Mbrola's speech synthesizer).
 
@@ -72,7 +72,7 @@ In the end, this is what espeak outputs for the French sentence "c'est pas faux"
 
 The first column is the phoneme name in the French SAMPA alphabet, the second
 one is the duration of each phoneme in ms, and the third (and what follows) are the
-pitch inflexions. These inflexions are usually only for vowels.
+pitch inflections. These inflections are usually only for vowels.
 
 This data is then passed on to Mbrola.
 
